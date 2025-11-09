@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validación de Expertos - CPDD-IC</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -89,17 +88,6 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #e0e0e0;
-        }
-        
-        .instructions-highlight {
-            background: #e3f2fd;
-            border-left: 3px solid #1976d2;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            color: #0d47a1;
-            margin-bottom: 15px;
-            line-height: 1.5;
         }
         
         .form-group {
@@ -187,6 +175,17 @@
             cursor: pointer;
             font-weight: 500;
             font-size: 12px;
+        }
+        
+        .instructions-highlight {
+            background: #e3f2fd;
+            border-left: 3px solid #1976d2;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #0d47a1;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
         
         .image-container {
@@ -314,7 +313,17 @@
             font-size: 12px;
         }
         
-        /* RESULTADOS */
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #2e7d32;
+            font-size: 12px;
+        }
+        
         .results-container {
             text-align: center;
         }
@@ -406,17 +415,6 @@
             background: #1fa856;
             border-color: #1fa856;
         }
-        
-        #resultadosCaptura {
-            display: none;
-            position: fixed;
-            top: -9999px;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 800px;
-            width: 90%;
-        }
     </style>
 </head>
 <body>
@@ -427,57 +425,18 @@
         </div>
         
         <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
         
         <div class="progress-info">
-            <span id="pageCounter">Página 1 de 19</span>
+            <span id="pageCounter">Página 1 de 18</span>
         </div>
         
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill" style="width: 5%"></div>
         </div>
         
-        <!-- PÁGINA 0: INSTRUCCIONES -->
+        <!-- PÁGINA 0: DATOS EXPERTO -->
         <div class="page active" id="page-0">
-            <div class="section-title">INSTRUCCIONES PARA LA EVALUACIÓN</div>
-            
-            <div style="margin-top: 20px;">
-                <h3 style="color: #001f4d; margin-bottom: 15px; font-size: 14px;">Escala de Calificación (1-5):</h3>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Representatividad Diagnóstica:</h4>
-                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
-                        <li><strong>1-2:</strong> No representativa o poco representativa (características poco evidentes)</li>
-                        <li><strong>3:</strong> Moderadamente representativa (características claras con variantes)</li>
-                        <li><strong>4-5:</strong> Representativa o altamente representativa (características típicas y claras)</li>
-                    </ul>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Calidad Técnica Fotográfica:</h4>
-                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
-                        <li><strong>1-2:</strong> Pobre/regular (baja resolución, mala iluminación)</li>
-                        <li><strong>3:</strong> Aceptable (calidad moderada)</li>
-                        <li><strong>4-5:</strong> Buena/excelente (alta resolución, iluminación óptima)</li>
-                    </ul>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Ausencia de Sesgo Visual:</h4>
-                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
-                        <li><strong>1-2:</strong> Presencia evidente o algunas pistas diagnósticas sesgadas</li>
-                        <li><strong>3:</strong> Pocas pistas sesgadas presentes</li>
-                        <li><strong>4-5:</strong> Mínimas o sin pistas diagnósticas no intencionadas</li>
-                    </ul>
-                </div>
-                
-                <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; border-left: 4px solid #003366; font-size: 12px; color: #1a4d6d; line-height: 1.6;">
-                    <strong>📌 Nota:</strong> La evaluación consta de 15 imágenes clínicas. Dedique aproximadamente 20-30 minutos. Su criterio experto es fundamental para la validez del instrumento.
-                </div>
-            </div>
-        </div>
-        
-        <!-- PÁGINA 1: DATOS EXPERTO -->
-        <div class="page" id="page-1">
             <div class="section-title">1. DATOS DEL ESPECIALISTA</div>
             
             <div class="form-group">
@@ -544,8 +503,8 @@
             </div>
         </div>
         
-        <!-- PÁGINA 2: CONSENTIMIENTO -->
-        <div class="page" id="page-2">
+        <!-- PÁGINA 1: CONSENTIMIENTO -->
+        <div class="page" id="page-1">
             <div class="section-title">2. CONSENTIMIENTO INFORMADO</div>
             
             <div class="consent-box">
@@ -562,7 +521,43 @@
             
             <div class="checkbox-consent">
                 <input type="checkbox" id="consentimiento" required>
-                <label for="consentimiento">Acepto participar voluntariamente en esta validación y autorizo el uso de mis datos</label>
+                <label for="consentimiento">Acepto participar voluntariamente y autorizo el uso de mis datos</label>
+            </div>
+        </div>
+        
+        <!-- PÁGINA 2: INSTRUCCIONES -->
+        <div class="page" id="page-2">
+            <div class="section-title">3. INSTRUCCIONES PARA LA EVALUACIÓN</div>
+            
+            <div style="margin-top: 20px;">
+                <h3 style="color: #001f4d; margin-bottom: 15px; font-size: 14px;">Escala de Calificación (1-5):</h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Representatividad Diagnóstica:</h4>
+                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
+                        <li><strong>1-2:</strong> No representativa o poco representativa</li>
+                        <li><strong>3:</strong> Moderadamente representativa</li>
+                        <li><strong>4-5:</strong> Representativa o altamente representativa</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Calidad Técnica Fotográfica:</h4>
+                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
+                        <li><strong>1-2:</strong> Pobre/regular (baja resolución)</li>
+                        <li><strong>3:</strong> Aceptable (calidad moderada)</li>
+                        <li><strong>4-5:</strong> Buena/excelente</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Ausencia de Sesgo Visual:</h4>
+                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
+                        <li><strong>1-2:</strong> Presencia evidente de pistas sesgadas</li>
+                        <li><strong>3:</strong> Pocas pistas sesgadas</li>
+                        <li><strong>4-5:</strong> Sin pistas no intencionadas</li>
+                    </ul>
+                </div>
             </div>
         </div>
         
@@ -570,7 +565,7 @@
         <div id="imagesPages"></div>
         
         <!-- PÁGINA 18: RESULTADOS -->
-        <div class="page" id="page-18">
+        <div class="page" id="page-17">
             <div class="results-container">
                 <h2 class="results-header">✓ Validación Completada</h2>
                 
@@ -583,7 +578,7 @@
                 
                 <h3 style="color: #001f4d; margin: 15px 0 10px 0; font-size: 14px;">Resumen de Evaluaciones</h3>
                 
-                <table class="results-table" id="tablaCaptura">
+                <table class="results-table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -597,7 +592,7 @@
                 </table>
                 
                 <div class="action-buttons">
-                    <button class="btn-action btn-whatsapp" onclick="enviarWhatsappCaptura()">📱 Enviar por WhatsApp</button>
+                    <button class="btn-action btn-whatsapp" onclick="enviarWhatsapp()">📱 Enviar por WhatsApp</button>
                 </div>
             </div>
         </div>
@@ -607,14 +602,6 @@
             <button class="btn-prev" onclick="irPagina(-1)" id="btnPrev" style="display:none;">← Anterior</button>
             <button class="btn-next" onclick="irPagina(1)" id="btnNext">Siguiente →</button>
         </div>
-    </div>
-    
-    <!-- DIV PARA CAPTURAR IMAGEN (OCULTO) -->
-    <div id="resultadosCaptura">
-        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #003366;">
-            <h2 style="color: #001f4d;">VALIDACIÓN COMPLETADA - CPDD-IC</h2>
-        </div>
-        <div id="capturaContenido"></div>
     </div>
 
     <script>
@@ -657,7 +644,7 @@
                 div.id = `page-${pageNum}`;
                 div.innerHTML = `
                     <div class="instructions-highlight">
-                        Recuerde: Calificar cada criterio de 1 (inaceptable) a 5 (excelente)
+                        Recuerde: Califique cada criterio de 1 (inaceptable) a 5 (excelente)
                     </div>
                     
                     <div class="image-container">
@@ -715,13 +702,13 @@
         }
         
         function irPagina(direccion) {
-            const totalPages = 19;
+            const totalPages = 18;
             const nuevaPagina = paginaActual + direccion;
             
             if (nuevaPagina < 0 || nuevaPagina >= totalPages) return;
             
             // Validaciones
-            if (paginaActual === 1) {
+            if (paginaActual === 0) {
                 if (!document.getElementById('nombre').value.trim()) {
                     mostrarError('Completa el nombre');
                     return;
@@ -741,14 +728,14 @@
                 }
             }
             
-            if (paginaActual === 2) {
+            if (paginaActual === 1) {
                 if (!document.getElementById('consentimiento').checked) {
                     mostrarError('Debes aceptar el consentimiento');
                     return;
                 }
             }
             
-            if (paginaActual >= 3 && paginaActual <= 17) {
+            if (paginaActual >= 3 && paginaActual <= 16) {
                 const patNum = paginaActual - 2;
                 if (!evaluaciones[patNum] || !evaluaciones[patNum].rep || !evaluaciones[patNum].cal || !evaluaciones[patNum].ses) {
                     mostrarError('Califica los 3 criterios');
@@ -757,7 +744,7 @@
             }
             
             // Envío al llegar a última página
-            if (paginaActual === 17 && direccion === 1) {
+            if (paginaActual === 16 && direccion === 1) {
                 if (!evaluaciones[15] || !evaluaciones[15].rep || !evaluaciones[15].cal || !evaluaciones[15].ses) {
                     mostrarError('Califica todos los criterios');
                     return;
@@ -774,17 +761,18 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${paginaActual}`).classList.add('active');
             
-            document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 19`;
+            document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 18`;
             
-            const porcentaje = ((paginaActual + 1) / 19) * 100;
+            const porcentaje = ((paginaActual + 1) / 18) * 100;
             document.getElementById('progressFill').style.width = porcentaje + '%';
             
             document.getElementById('btnPrev').style.display = paginaActual === 0 ? 'none' : 'block';
-            document.getElementById('btnNext').textContent = paginaActual === 17 ? 'Enviar Validación ✓' : 'Siguiente →';
+            document.getElementById('btnNext').textContent = paginaActual === 16 ? 'Enviar Validación ✓' : 'Siguiente →';
         }
         
         function enviarValidacion() {
             datosEvaluador = {
+                timestamp: new Date().toLocaleDateString('es-PE') + ' ' + new Date().toLocaleTimeString('es-PE'),
                 nombre: document.getElementById('nombre').value,
                 cmp: document.getElementById('cmp').value,
                 rne: document.getElementById('rne').value,
@@ -792,47 +780,50 @@
                 institucion: Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value).join(', '),
                 experiencia: document.getElementById('experiencia').value,
                 fecha: new Date().toLocaleDateString('es-PE'),
-                hora: new Date().toLocaleTimeString('es-PE'),
                 evaluaciones: evaluaciones
             };
             
+            document.getElementById('btnNext').disabled = true;
+            document.getElementById('btnNext').textContent = 'Enviando...';
+            
             // Enviar a Google Sheets
             enviarAGoogleSheets(datosEvaluador);
-            
-            // Mostrar resultados
-            setTimeout(() => {
-                mostrarResultados(datosEvaluador);
-            }, 500);
         }
         
         function enviarAGoogleSheets(datos) {
             const payload = {
-                timestamp: datos.fecha + ' ' + datos.hora,
+                timestamp: datos.timestamp,
                 nombre: datos.nombre,
                 cmp: datos.cmp,
                 rne: datos.rne,
                 email: datos.email,
                 institucion: datos.institucion,
-                experiencia: datos.experiencia
+                experiencia: datos.experiencia,
+                evaluaciones: datos.evaluaciones
             };
-            
-            // Añadir evaluaciones
-            for (let i = 1; i <= 15; i++) {
-                if (datos.evaluaciones[i]) {
-                    payload[`img${i}_rep`] = datos.evaluaciones[i].rep || '';
-                    payload[`img${i}_cal`] = datos.evaluaciones[i].cal || '';
-                    payload[`img${i}_ses`] = datos.evaluaciones[i].ses || '';
-                }
-            }
             
             fetch(URL_GOOGLE_SCRIPT, {
                 method: 'POST',
                 body: JSON.stringify(payload)
-            }).then(res => console.log('Enviado a Google Sheets')).catch(err => console.log('Datos enviados:', err));
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Respuesta Google Sheets:', data);
+                setTimeout(() => {
+                    mostrarResultados(datos);
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Error enviando a Google Sheets:', error);
+                // Mostrar resultados de todas formas
+                setTimeout(() => {
+                    mostrarResultados(datos);
+                }, 500);
+            });
         }
         
         function mostrarResultados(datos) {
-            paginaActual = 18;
+            paginaActual = 17;
             mostrarPagina();
             
             document.getElementById('resNombre').textContent = datos.nombre;
@@ -862,28 +853,27 @@
             document.getElementById('btnPrev').style.display = 'none';
         }
         
-        async function enviarWhatsappCaptura() {
-            const tabla = document.getElementById('resultsTableBody').parentElement.parentElement.parentElement;
+        function enviarWhatsapp() {
+            let mensaje = `*VALIDACIÓN EXPERTOS - CPDD-IC*\n\n`;
+            mensaje += `*Datos del Evaluador:*\n`;
+            mensaje += `Nombre: ${datosEvaluador.nombre}\n`;
+            mensaje += `CMP: ${datosEvaluador.cmp}\n`;
+            mensaje += `RNE: ${datosEvaluador.rne}\n`;
+            mensaje += `Email: ${datosEvaluador.email}\n`;
+            mensaje += `Institución(es): ${datosEvaluador.institucion}\n`;
+            mensaje += `Experiencia: ${datosEvaluador.experiencia} años\n`;
+            mensaje += `Fecha: ${datosEvaluador.fecha}\n\n`;
             
-            try {
-                const canvas = await html2canvas(tabla, { scale: 2, useCORS: true });
-                const image = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = `validacion_${datosEvaluador.nombre.replace(/\s+/g, '_')}.png`;
-                
-                // Convertir imagen a blob para enviar a WhatsApp
-                fetch(image).then(res => res.blob()).then(blob => {
-                    const url = `https://wa.me/${WHATSAPP_NUMBER}`;
-                    window.open(url, '_blank');
-                    
-                    // Descargar imagen
-                    link.click();
-                });
-            } catch (err) {
-                console.log('Captura generada, abre WhatsApp manualmente');
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
-            }
+            mensaje += `*Resumen de Evaluaciones (Rep/Cal/Ses):*\n`;
+            PATOLOGIAS.forEach(pat => {
+                const ev = datosEvaluador.evaluaciones[pat.num];
+                if (ev) {
+                    mensaje += `${pat.num}. ${pat.nombre}: ${ev.rep}/${ev.cal}/${ev.ses}\n`;
+                }
+            });
+            
+            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
         }
         
         function mostrarError(msg) {
