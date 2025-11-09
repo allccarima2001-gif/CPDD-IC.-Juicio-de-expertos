@@ -204,7 +204,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 </div>
 
 <!-- BOTONES NAVEGACIÓN -->
-<div class="grupo-botones">
+<div class="grupo-botones" id="grupo-botones">
 <button class="boton boton-atras" onclick="ir_pagina_anterior()" id="btn-atras" style="display:none">← Anterior</button>
 <button class="boton boton-siguiente" onclick="ir_pagina_siguiente()" id="btn-siguiente" disabled>Siguiente →</button>
 </div>
@@ -296,7 +296,14 @@ document.querySelectorAll(".pagina").forEach(p=>p.classList.remove("visible"));
 document.getElementById("pagina-"+pagina).classList.add("visible");
 document.getElementById("contador-paginas").textContent="Página "+(pagina+1)+" de 19";
 document.getElementById("barra-progreso").style.width=((pagina+1)/19*100)+"%";
+
+if(pagina===18){
+document.getElementById("grupo-botones").style.display="none";
+}else{
+document.getElementById("grupo-botones").style.display="flex";
 document.getElementById("btn-atras").style.display=pagina===0?"none":"block";
+}
+
 let btn=document.getElementById("btn-siguiente");
 btn.textContent=pagina===17?"Enviar respuestas":"Siguiente →";
 verificar_boton();
