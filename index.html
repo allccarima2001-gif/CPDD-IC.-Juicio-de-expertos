@@ -69,7 +69,16 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .boton-siguiente{background:#001a4d;color:#fff;flex:1;margin-left:10px}
 .boton-siguiente:hover:not(:disabled){background:#003d99}
 .boton-siguiente:disabled{opacity:0.4;cursor:not-allowed}
-#captura-imagen{position:absolute;top:-9999px;background:#fff;padding:40px;border-radius:12px;max-width:900px;width:90%}
+#captura-imagen{position:absolute;top:-9999px;left:50%;transform:translateX(-50%);background:#fff;padding:60px 40px;border-radius:12px;max-width:1000px;width:95%;box-shadow:0 0 20px rgba(0,0,0,0.3);margin:0;margin-left:-500px}
+.captura-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #001a4d}
+.captura-header h2{color:#001a4d;font-size:24px;margin:0}
+.captura-datos{background:linear-gradient(135deg,#e8f4ff,#f0f8ff);border-left:5px solid #001a4d;padding:20px;border-radius:8px;margin-bottom:25px}
+.captura-datos-item{font-size:13px;margin:10px 0;line-height:1.6}
+.captura-datos-item strong{color:#001a4d;display:inline-block;min-width:120px}
+.captura-tabla{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
+.captura-tabla th{background:#001a4d;color:#fff;padding:12px;text-align:left;font-weight:bold}
+.captura-tabla td{padding:12px;border-bottom:2px solid #e0e0e0}
+.captura-tabla tr:nth-child(even){background:#f5f5f5}
 </style>
 </head>
 <body>
@@ -84,7 +93,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <div class="mensaje-error" id="error"></div>
 
 <div class="contador">
-<span id="contador-paginas">Página 1 de 18</span>
+<span id="contador-paginas">Página 1 de 19</span>
 </div>
 
 <div class="progreso">
@@ -181,7 +190,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 </div>
 </div>
 
-<!-- PÁGINAS 3-17: IMÁGENES -->
+<!-- PÁGINAS 3-17: 15 IMÁGENES -->
 <div id="contenedor-imagenes"></div>
 
 <!-- PÁGINA 18: RESULTADOS -->
@@ -200,7 +209,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <tbody id="cuerpo-tabla"></tbody>
 </table>
 <div class="panel-acciones">
-<button class="boton-whatsapp" onclick="descargar_enviar_whatsapp()" id="btn-whatsapp" disabled>📱 Enviar por WhatsApp</button>
+<button class="boton-whatsapp" onclick="enviar_whatsapp_imagen()" id="btn-whatsapp" disabled>📱 Enviar por WhatsApp</button>
 </div>
 </div>
 </div>
@@ -215,20 +224,21 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 
 </div>
 
-<!-- DIV PARA CAPTURA -->
+<!-- DIV PARA CAPTURA - MÁS VISTOSO Y CENTRADO -->
 <div id="captura-imagen">
-<div style="text-align:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #001a4d">
-<h2 style="color:#001a4d;font-size:22px;margin:0">VALIDACIÓN COMPLETADA - CPDD-IC</h2>
+<div class="captura-header">
+<h2>✓ VALIDACIÓN COMPLETADA</h2>
+<p style="color:#0066cc;margin-top:8px;font-size:11px">Cuestionario de Precisión Diagnóstica Dermatológica - CPDD-IC</p>
 </div>
-<div style="background:#e8f4ff;border-left:4px solid #001a4d;padding:15px;border-radius:6px;margin-bottom:15px">
-<div style="font-size:12px;margin:8px 0"><strong>Evaluador:</strong> <span id="cap-nombre"></span></div>
-<div style="font-size:12px;margin:8px 0"><strong>CMP:</strong> <span id="cap-cmp"></span></div>
-<div style="font-size:12px;margin:8px 0"><strong>Institución:</strong> <span id="cap-institucion"></span></div>
-<div style="font-size:12px;margin:8px 0"><strong>Fecha:</strong> <span id="cap-fecha"></span></div>
+<div class="captura-datos">
+<div class="captura-datos-item"><strong>Evaluador:</strong> <span id="cap-nombre"></span></div>
+<div class="captura-datos-item"><strong>CMP:</strong> <span id="cap-cmp"></span></div>
+<div class="captura-datos-item"><strong>Institución:</strong> <span id="cap-institucion"></span></div>
+<div class="captura-datos-item"><strong>Fecha:</strong> <span id="cap-fecha"></span></div>
 </div>
-<h3 style="color:#001a4d;margin:15px 0 10px 0;font-size:14px;text-align:left">Resumen de Evaluaciones</h3>
-<table style="width:100%;border-collapse:collapse;background:#fff;font-size:11px">
-<thead><tr style="background:#001a4d;color:#fff"><th style="padding:8px;text-align:left;font-weight:bold">#</th><th style="padding:8px;text-align:left;font-weight:bold">Patología</th><th style="padding:8px;text-align:left;font-weight:bold">Rep</th><th style="padding:8px;text-align:left;font-weight:bold">Cal</th><th style="padding:8px;text-align:left;font-weight:bold">Ses</th></tr></thead>
+<h3 style="color:#001a4d;margin:20px 0 15px 0;font-size:15px;text-align:center">Resumen de Evaluaciones</h3>
+<table class="captura-tabla">
+<thead><tr><th>#</th><th>Patología</th><th>Rep</th><th>Cal</th><th>Ses</th></tr></thead>
 <tbody id="cap-tabla-cuerpo"></tbody>
 </table>
 </div>
@@ -317,11 +327,11 @@ verificar_boton();
 function cambiar(){
 document.querySelectorAll(".pagina").forEach(p=>p.classList.remove("visible"));
 document.getElementById("pagina-"+pagina).classList.add("visible");
-document.getElementById("contador-paginas").textContent="Página "+(pagina+1)+" de 18";
-document.getElementById("barra-progreso").style.width=((pagina+1)/18*100)+"%";
+document.getElementById("contador-paginas").textContent="Página "+(pagina+1)+" de 19";
+document.getElementById("barra-progreso").style.width=((pagina+1)/19*100)+"%";
 document.getElementById("btn-atras").style.display=pagina===0?"none":"block";
 let btn=document.getElementById("btn-siguiente");
-btn.textContent=pagina===16?"Enviar Validación ✓":"Siguiente →";
+btn.textContent=pagina===17?"Enviar Validación ✓":"Siguiente →";
 verificar_boton();
 }
 
@@ -338,7 +348,7 @@ btn.disabled=!(n&&c&&e&&ex&&inst);
 btn.disabled=!document.getElementById("consentimiento").checked;
 }else if(pagina===2){
 btn.disabled=false;
-}else if(pagina>=3&&pagina<=16){
+}else if(pagina>=3&&pagina<=17){
 let id=pagina-2;
 let v=evals[id];
 btn.disabled=!(v&&v.rep&&v.cal&&v.ses);
@@ -346,11 +356,11 @@ btn.disabled=!(v&&v.rep&&v.cal&&v.ses);
 }
 
 function ir_pagina_siguiente(){
-if(pagina===16){
+if(pagina===17){
 procesar();
 return;
 }
-if(pagina<17){
+if(pagina<18){
 pagina++;
 cambiar();
 }
@@ -418,7 +428,7 @@ tr.innerHTML=`<td>${p.id}</td><td>${p.nombre}</td><td>${v.rep}</td><td>${v.cal}<
 tb.appendChild(tr);
 
 let tr2=document.createElement("tr");
-tr2.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${p.id}</td><td style="padding:8px;border-bottom:1px solid #eee">${p.nombre}</td><td style="padding:8px;border-bottom:1px solid #eee">${v.rep}</td><td style="padding:8px;border-bottom:1px solid #eee">${v.cal}</td><td style="padding:8px;border-bottom:1px solid #eee">${v.ses}</td>`;
+tr2.innerHTML=`<td>${p.id}</td><td>${p.nombre}</td><td>${v.rep}</td><td>${v.cal}</td><td>${v.ses}</td>`;
 tc.appendChild(tr2);
 }
 });
@@ -428,26 +438,31 @@ document.getElementById("btn-atras").style.display="none";
 document.getElementById("btn-whatsapp").disabled=false;
 }
 
-async function descargar_enviar_whatsapp(){
+async function enviar_whatsapp_imagen(){
 try{
-const elem=document.getElementById("captura-imagen");
-const canvas=await html2canvas(elem,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
-const img=canvas.toDataURL("image/jpeg",0.9);
+document.getElementById("btn-whatsapp").disabled=true;
+document.getElementById("btn-whatsapp").textContent="Generando imagen...";
 
-const link=document.createElement("a");
-link.href=img;
-link.download=`validacion_${usuario.nombre.replace(/\s+/g,"_")}.jpg`;
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
+const elem=document.getElementById("captura-imagen");
+const canvas=await html2canvas(elem,{scale:3,useCORS:true,backgroundColor:"#ffffff",allowTaint:true});
+const img=canvas.toDataURL("image/jpeg",0.95);
+
+document.getElementById("btn-whatsapp").textContent="Enviando a WhatsApp...";
+
+const blob=await(await fetch(img)).blob();
+const formData=new FormData();
+formData.append("file",blob,"validacion.jpg");
 
 setTimeout(()=>{
-window.open(`https://wa.me/${WA_NUM}?text=He%20completado%20la%20validaci%C3%B3n%20CPDD-IC`,"_blank");
-},1000);
+const mensaje=encodeURIComponent("He completado la validación de expertos CPDD-IC. Resumen adjunto.");
+window.open(`https://wa.me/${WA_NUM}?text=${mensaje}`,"_blank");
+document.getElementById("btn-whatsapp").textContent="✓ Enviado a WhatsApp";
+},1500);
 
 }catch(e){
 console.error("Error:",e);
-alert("Error generando imagen");
+document.getElementById("btn-whatsapp").disabled=false;
+document.getElementById("btn-whatsapp").textContent="Error, intenta de nuevo";
 }
 }
 
