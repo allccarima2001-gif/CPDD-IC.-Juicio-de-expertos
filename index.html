@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Validación CPDD</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-serif;padding:20px;min-height:100vh}
@@ -54,13 +53,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .tabla-resultados tr:nth-child(even){background:#f9f9f9}
 .seccion-resultado{text-align:center}
 .titulo-resultado{font-size:24px;color:#001a4d;margin-bottom:25px;font-weight:bold}
-.panel-acciones{display:flex;gap:12px;margin-top:25px;flex-wrap:wrap}
-.panel-acciones button{flex:1;min-width:140px;padding:12px;border:2px solid #001a4d;background:#fff;color:#001a4d;border-radius:6px;cursor:pointer;font-weight:bold;font-size:13px;transition:all 0.2s}
-.panel-acciones button:hover:not(:disabled){background:#001a4d;color:#fff}
-.panel-acciones button:disabled{opacity:0.4;cursor:not-allowed}
-.panel-acciones .boton-drive{background:#4285f4;color:#fff;border-color:#4285f4}
-.panel-acciones .boton-drive:hover:not(:disabled){background:#357abd;border-color:#357abd}
-.mensaje-error{background:#ffebee;color:#c62828;padding:12px;border-radius:6px;border-left:4px solid #c62828;margin-bottom:20px;display:none;font-size:12px}
+.mensaje-exito{background:#e8f5e9;color:#2e7d32;padding:15px;border-radius:6px;border-left:4px solid #2e7d32;margin-top:20px;font-size:13px;display:none}
 .grupo-botones{display:flex;gap:12px;margin-top:40px;justify-content:space-between}
 .boton{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:14px;transition:all 0.2s}
 .boton-atras{background:#ddd;color:#333}
@@ -69,16 +62,6 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .boton-siguiente{background:#001a4d;color:#fff;flex:1;margin-left:10px}
 .boton-siguiente:hover:not(:disabled){background:#003d99}
 .boton-siguiente:disabled{opacity:0.4;cursor:not-allowed}
-#captura-imagen{position:absolute;top:-9999px;left:50%;transform:translateX(-50%);background:#fff;padding:60px 40px;border-radius:12px;max-width:1000px;width:95%;box-shadow:0 0 20px rgba(0,0,0,0.3);margin:0;margin-left:-500px}
-.captura-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #001a4d}
-.captura-header h2{color:#001a4d;font-size:24px;margin:0}
-.captura-datos{background:linear-gradient(135deg,#e8f4ff,#f0f8ff);border-left:5px solid #001a4d;padding:20px;border-radius:8px;margin-bottom:25px}
-.captura-datos-item{font-size:13px;margin:10px 0;line-height:1.6}
-.captura-datos-item strong{color:#001a4d;display:inline-block;min-width:120px}
-.captura-tabla{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
-.captura-tabla th{background:#001a4d;color:#fff;padding:12px;text-align:left;font-weight:bold}
-.captura-tabla td{padding:12px;border-bottom:2px solid #e0e0e0}
-.captura-tabla tr:nth-child(even){background:#f5f5f5}
 </style>
 </head>
 <body>
@@ -89,8 +72,6 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <h1>VALIDACIÓN DE EXPERTOS</h1>
 <p>Cuestionario de Precisión Diagnóstica Dermatológica - CPDD-IC</p>
 </div>
-
-<div class="mensaje-error" id="error"></div>
 
 <div class="contador">
 <span id="contador-paginas">Página 1 de 19</span>
@@ -208,9 +189,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <thead><tr><th>#</th><th>Patología</th><th>Rep</th><th>Cal</th><th>Ses</th></tr></thead>
 <tbody id="cuerpo-tabla"></tbody>
 </table>
-<div class="panel-acciones">
-<button class="boton-drive" onclick="enviar_drive_y_sheets()" id="btn-drive" disabled>☁ Enviar a Google Drive</button>
-</div>
+<div class="mensaje-exito" id="exito">✓ Los datos se han guardado automáticamente en Google Drive y Sheets</div>
 </div>
 </div>
 
@@ -222,25 +201,6 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <button class="boton boton-siguiente" onclick="ir_pagina_siguiente()" id="btn-siguiente" disabled>Siguiente →</button>
 </div>
 
-</div>
-
-<!-- DIV PARA CAPTURA -->
-<div id="captura-imagen">
-<div class="captura-header">
-<h2>✓ VALIDACIÓN COMPLETADA</h2>
-<p style="color:#0066cc;margin-top:8px;font-size:11px">Cuestionario de Precisión Diagnóstica Dermatológica - CPDD-IC</p>
-</div>
-<div class="captura-datos">
-<div class="captura-datos-item"><strong>Evaluador:</strong> <span id="cap-nombre"></span></div>
-<div class="captura-datos-item"><strong>CMP:</strong> <span id="cap-cmp"></span></div>
-<div class="captura-datos-item"><strong>Institución:</strong> <span id="cap-institucion"></span></div>
-<div class="captura-datos-item"><strong>Fecha:</strong> <span id="cap-fecha"></span></div>
-</div>
-<h3 style="color:#001a4d;margin:20px 0 15px 0;font-size:15px;text-align:center">Resumen de Evaluaciones</h3>
-<table class="captura-tabla">
-<thead><tr><th>#</th><th>Patología</th><th>Rep</th><th>Cal</th><th>Ses</th></tr></thead>
-<tbody id="cap-tabla-cuerpo"></tbody>
-</table>
 </div>
 
 <script>
@@ -386,9 +346,18 @@ evaluaciones:evals
 };
 
 document.getElementById("btn-siguiente").disabled=true;
-document.getElementById("btn-siguiente").textContent="Preparando validación...";
+document.getElementById("btn-siguiente").textContent="Enviando...";
 
+fetch(URL_SHEETS,{
+method:"POST",
+body:JSON.stringify(usuario)
+}).then(r=>r.json()).then(d=>{
+console.log("Respuesta:",d);
 mostrar();
+}).catch(err=>{
+console.error("Error:",err);
+mostrar();
+});
 }
 
 function mostrar(){
@@ -400,15 +369,8 @@ document.getElementById("res-cmp").textContent=usuario.cmp;
 document.getElementById("res-institucion").textContent=usuario.inst;
 document.getElementById("res-fecha").textContent=usuario.fecha;
 
-document.getElementById("cap-nombre").textContent=usuario.nombre;
-document.getElementById("cap-cmp").textContent=usuario.cmp;
-document.getElementById("cap-institucion").textContent=usuario.inst;
-document.getElementById("cap-fecha").textContent=usuario.fecha;
-
 let tb=document.getElementById("cuerpo-tabla");
-let tc=document.getElementById("cap-tabla-cuerpo");
 tb.innerHTML="";
-tc.innerHTML="";
 
 PATOLOGIAS.forEach(p=>{
 let v=usuario.evaluaciones[p.id];
@@ -416,62 +378,12 @@ if(v){
 let tr=document.createElement("tr");
 tr.innerHTML=`<td>${p.id}</td><td>${p.nombre}</td><td>${v.rep}</td><td>${v.cal}</td><td>${v.ses}</td>`;
 tb.appendChild(tr);
-
-let tr2=document.createElement("tr");
-tr2.innerHTML=`<td>${p.id}</td><td>${p.nombre}</td><td>${v.rep}</td><td>${v.cal}</td><td>${v.ses}</td>`;
-tc.appendChild(tr2);
 }
 });
 
 document.getElementById("btn-siguiente").style.display="none";
 document.getElementById("btn-atras").style.display="none";
-document.getElementById("btn-drive").disabled=false;
-}
-
-async function enviar_drive_y_sheets(){
-try{
-document.getElementById("btn-drive").disabled=true;
-document.getElementById("btn-drive").textContent="Generando imagen...";
-
-const elem=document.getElementById("captura-imagen");
-const canvas=await html2canvas(elem,{scale:3,useCORS:true,backgroundColor:"#ffffff",allowTaint:true});
-const imgBase64=canvas.toDataURL("image/jpeg",0.95);
-
-document.getElementById("btn-drive").textContent="Enviando a Google Drive y Sheets...";
-
-const dataToSend={
-ts:usuario.ts,
-nombre:usuario.nombre,
-cmp:usuario.cmp,
-rne:usuario.rne,
-email:usuario.email,
-inst:usuario.inst,
-exp:usuario.exp,
-fecha:usuario.fecha,
-evaluaciones:usuario.evaluaciones,
-imagen:imgBase64
-};
-
-const response=await fetch(URL_SHEETS,{
-method:"POST",
-body:JSON.stringify(dataToSend)
-});
-
-const result=await response.json();
-console.log("Respuesta:",result);
-
-document.getElementById("btn-drive").textContent="✓ Completado y guardado en Drive";
-document.getElementById("btn-drive").disabled=true;
-
-setTimeout(()=>{
-alert("Validación completada. Los datos se han guardado en Google Sheets y la imagen en Google Drive.");
-},1000);
-
-}catch(e){
-console.error("Error:",e);
-document.getElementById("btn-drive").textContent="Error, intenta de nuevo";
-document.getElementById("btn-drive").disabled=false;
-}
+document.getElementById("exito").style.display="block";
 }
 
 crear_imagenes();
