@@ -37,7 +37,8 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .recordatorio{background:#e3f2ff;border-left:3px solid #1976d2;padding:12px;border-radius:5px;font-size:11px;color:#0d47a1;margin-bottom:20px}
 .bloque-imagen{background:#f5f5f5;border-left:4px solid #0066cc;padding:18px;border-radius:6px;margin-bottom:20px}
 .titulo-imagen{font-weight:bold;font-size:15px;color:#001a4d;margin-bottom:12px}
-.area-imagen{width:100%;height:200px;border:2px dashed #0066cc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#e8f4ff;color:#0066cc;font-size:13px;margin-bottom:15px}
+.area-imagen{width:100%;height:250px;border:2px solid #0066cc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fff;color:#0066cc;font-size:13px;margin-bottom:15px;overflow:hidden}
+.area-imagen img{max-width:100%;max-height:100%;object-fit:contain}
 .item-criterio{margin-bottom:15px}
 .etiqueta-criterio{font-size:11px;font-weight:bold;color:#333;margin-bottom:8px}
 .botones-calificacion{display:flex;gap:6px}
@@ -189,7 +190,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <thead><tr><th>#</th><th>Patología</th><th>Rep</th><th>Cal</th><th>Ses</th></tr></thead>
 <tbody id="cuerpo-tabla"></tbody>
 </table>
-<div class="mensaje-exito" id="exito">✓ Los datos han sido enviados, gracias.</div>
+<div class="mensaje-exito" id="exito">Los datos han sido enviados, gracias.</div>
 </div>
 </div>
 
@@ -205,24 +206,24 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 
 <script>
 const PATOLOGIAS=[
-{id:1,nombre:"Acné vulgar"},
-{id:2,nombre:"Dermatitis atópica"},
-{id:3,nombre:"Queratosis seborreica"},
-{id:4,nombre:"Impétigo no bulloso"},
-{id:5,nombre:"Psoriasis"},
-{id:6,nombre:"Melanoma"},
-{id:7,nombre:"Verruga vulgar"},
-{id:8,nombre:"Rosácea"},
-{id:9,nombre:"Tiña corporis"},
-{id:10,nombre:"Carcinoma basocelular"},
-{id:11,nombre:"Nevo melanocítico común"},
-{id:12,nombre:"Lentigo solar"},
-{id:13,nombre:"Queratosis actínica"},
-{id:14,nombre:"Dermatitis de contacto alérgica"},
-{id:15,nombre:"Molusco contagioso"}
+{id:1,nombre:"Dermatitis de contacto alérgica",img:"Dermatitis de contacto.jpg"},
+{id:2,nombre:"Dermatitis atópica",img:"Dermatitis atópica.jpg"},
+{id:3,nombre:"Queratosis seborreica",img:"Queratosis seborreica.jpg"},
+{id:4,nombre:"Impétigo no bulloso",img:"Impétigo.jpg"},
+{id:5,nombre:"Psoriasis",img:"Psoriasis.jpg"},
+{id:6,nombre:"Melanoma",img:"Melanoma.jpg"},
+{id:7,nombre:"Acné vulgar",img:"Acné.jpeg"},
+{id:8,nombre:"Verruga vulgar",img:"Verruga vulgar.jpg"},
+{id:9,nombre:"Rosácea",img:"Rosácea.jpg"},
+{id:10,nombre:"Tiña corporis",img:"Tiña corporis.jpg"},
+{id:11,nombre:"Carcinoma basocelular",img:"Carcinoma basocelular.jpg"},
+{id:12,nombre:"Nevo melanocítico común",img:"Nevus.jpg"},
+{id:13,nombre:"Lentigo solar",img:"Lentigo solar.jpg"},
+{id:14,nombre:"Queratosis actínica",img:"Queratosis actínica.jpg"},
+{id:15,nombre:"Molusco contagioso",img:"Molusco contagioso.jpg"}
 ];
 
-const URL_SHEETS="https://script.google.com/macros/s/AKfycbyBujwpBus6VR8STMZe13wgvgugB-uwx1zN4aWCSHdume_oa5Ey56K7lJbhwQf7WXnl/exec";
+const URL_SHEETS="https://script.google.com/macros/s/AKfycbyxZCAgusxSXraIDSG0rfeedWQiial_FHWACECKzF8Sy-TbZ5OaJ1Pj3rqTkxD9dpMu/exec";
 
 let pagina=0;
 let evals={};
@@ -238,7 +239,7 @@ div.innerHTML=`
 <div class="recordatorio">Califique cada criterio de 1 (inaceptable) a 5 (excelente)</div>
 <div class="bloque-imagen">
 <div class="titulo-imagen">Imagen ${p.id}: ${p.nombre}</div>
-<div class="area-imagen">[Imagen ${p.id}]</div>
+<div class="area-imagen"><img src="${p.img}" alt="${p.nombre}"></div>
 <div class="item-criterio">
 <div class="etiqueta-criterio">Representatividad diagnóstica</div>
 <div class="botones-calificacion">
