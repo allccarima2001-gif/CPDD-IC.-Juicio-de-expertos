@@ -313,17 +313,6 @@
             font-size: 12px;
         }
         
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: none;
-            border-left: 4px solid #2e7d32;
-            font-size: 12px;
-        }
-        
         .results-container {
             text-align: center;
         }
@@ -425,7 +414,6 @@
         </div>
         
         <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
         
         <div class="progress-info">
             <span id="pageCounter">Página 1 de 18</span>
@@ -441,22 +429,22 @@
             
             <div class="form-group">
                 <label>Nombre completo *</label>
-                <input type="text" id="nombre" placeholder="Dr./Dra. Apellido Apellido" required>
+                <input type="text" id="nombre" placeholder="Dr./Dra. Apellido Apellido">
             </div>
             
             <div class="form-group">
                 <label>Cédula Médica (CMP) *</label>
-                <input type="text" id="cmp" placeholder="Ej: 012345" required>
+                <input type="text" id="cmp" placeholder="Ej: 012345">
             </div>
             
             <div class="form-group">
                 <label>Registro Nacional Especialista (RNE) *</label>
-                <input type="text" id="rne" placeholder="Ej: 123456" required>
+                <input type="text" id="rne" placeholder="Ej: 123456">
             </div>
             
             <div class="form-group">
                 <label>Email *</label>
-                <input type="email" id="email" placeholder="correo@ejemplo.com" required>
+                <input type="email" id="email" placeholder="correo@ejemplo.com">
             </div>
             
             <div class="form-group">
@@ -499,7 +487,7 @@
             
             <div class="form-group">
                 <label>Años de experiencia en dermatología *</label>
-                <input type="number" id="experiencia" placeholder="Ej: 12" min="1" max="80" required>
+                <input type="number" id="experiencia" placeholder="Ej: 12" min="1" max="80">
             </div>
         </div>
         
@@ -520,7 +508,7 @@
             </div>
             
             <div class="checkbox-consent">
-                <input type="checkbox" id="consentimiento" required>
+                <input type="checkbox" id="consentimiento">
                 <label for="consentimiento">Acepto participar voluntariamente y autorizo el uso de mis datos</label>
             </div>
         </div>
@@ -702,30 +690,11 @@
         }
         
         function irPagina(direccion) {
-            const totalPages = 18;
             const nuevaPagina = paginaActual + direccion;
             
-            if (nuevaPagina < 0 || nuevaPagina >= totalPages) return;
-            
-            // Validaciones
+            // Validar según página
             if (paginaActual === 0) {
-                if (!document.getElementById('nombre').value.trim()) {
-                    mostrarError('Completa el nombre');
-                    return;
-                }
-                if (!document.getElementById('cmp').value.trim()) {
-                    mostrarError('Completa el CMP');
-                    return;
-                }
-                if (!document.getElementById('email').value.trim()) {
-                    mostrarError('Completa el email');
-                    return;
-                }
-                let institucionesSeleccionadas = document.querySelectorAll('.checkbox-group input:checked');
-                if (institucionesSeleccionadas.length === 0) {
-                    mostrarError('Selecciona al menos una institución');
-                    return;
-                }
+                if (!validarPagina0()) return;
             }
             
             if (paginaActual === 1) {
@@ -735,26 +704,56 @@
                 }
             }
             
-            if (paginaActual >= 3 && paginaActual <= 16) {
+            // Si está en una página de imagen (3-16) y quiere ir adelante
+            if (paginaActual >= 3 && paginaActual <= 16 && direccion === 1) {
                 const patNum = paginaActual - 2;
                 if (!evaluaciones[patNum] || !evaluaciones[patNum].rep || !evaluaciones[patNum].cal || !evaluaciones[patNum].ses) {
-                    mostrarError('Califica los 3 criterios');
+                    mostrarError('Califica los 3 criterios antes de continuar');
                     return;
                 }
             }
             
-            // Envío al llegar a última página
+            // Validar última imagen (página 16) antes de ir a resultados
             if (paginaActual === 16 && direccion === 1) {
                 if (!evaluaciones[15] || !evaluaciones[15].rep || !evaluaciones[15].cal || !evaluaciones[15].ses) {
-                    mostrarError('Califica todos los criterios');
+                    mostrarError('Califica todos los criterios de esta última imagen');
                     return;
                 }
+                // Enviar datos
                 enviarValidacion();
                 return;
             }
             
+            // Limites de navegación
+            if (nuevaPagina < 0 || nuevaPagina >= 18) return;
+            
             paginaActual = nuevaPagina;
             mostrarPagina();
+        }
+        
+        function validarPagina0() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const cmp = document.getElementById('cmp').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const institucionesSeleccionadas = document.querySelectorAll('.checkbox-group input:checked');
+            
+            if (!nombre) {
+                mostrarError('Completa el nombre');
+                return false;
+            }
+            if (!cmp) {
+                mostrarError('Completa el CMP');
+                return false;
+            }
+            if (!email) {
+                mostrarError('Completa el email');
+                return false;
+            }
+            if (institucionesSeleccionadas.length === 0) {
+                mostrarError('Selecciona al menos una institución');
+                return false;
+            }
+            return true;
         }
         
         function mostrarPagina() {
@@ -767,18 +766,23 @@
             document.getElementById('progressFill').style.width = porcentaje + '%';
             
             document.getElementById('btnPrev').style.display = paginaActual === 0 ? 'none' : 'block';
-            document.getElementById('btnNext').textContent = paginaActual === 16 ? 'Enviar Validación ✓' : 'Siguiente →';
+            
+            if (paginaActual === 16) {
+                document.getElementById('btnNext').textContent = 'Enviar Validación ✓';
+            } else {
+                document.getElementById('btnNext').textContent = 'Siguiente →';
+            }
         }
         
         function enviarValidacion() {
             datosEvaluador = {
                 timestamp: new Date().toLocaleDateString('es-PE') + ' ' + new Date().toLocaleTimeString('es-PE'),
-                nombre: document.getElementById('nombre').value,
-                cmp: document.getElementById('cmp').value,
-                rne: document.getElementById('rne').value,
-                email: document.getElementById('email').value,
+                nombre: document.getElementById('nombre').value.trim(),
+                cmp: document.getElementById('cmp').value.trim(),
+                rne: document.getElementById('rne').value.trim(),
+                email: document.getElementById('email').value.trim(),
                 institucion: Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value).join(', '),
-                experiencia: document.getElementById('experiencia').value,
+                experiencia: document.getElementById('experiencia').value.trim(),
                 fecha: new Date().toLocaleDateString('es-PE'),
                 evaluaciones: evaluaciones
             };
@@ -787,55 +791,35 @@
             document.getElementById('btnNext').textContent = 'Enviando...';
             
             // Enviar a Google Sheets
-            enviarAGoogleSheets(datosEvaluador);
-        }
-        
-        function enviarAGoogleSheets(datos) {
-            const payload = {
-                timestamp: datos.timestamp,
-                nombre: datos.nombre,
-                cmp: datos.cmp,
-                rne: datos.rne,
-                email: datos.email,
-                institucion: datos.institucion,
-                experiencia: datos.experiencia,
-                evaluaciones: datos.evaluaciones
-            };
-            
             fetch(URL_GOOGLE_SCRIPT, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify(datosEvaluador)
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Respuesta Google Sheets:', data);
-                setTimeout(() => {
-                    mostrarResultados(datos);
-                }, 500);
+                console.log('Respuesta:', data);
+                mostrarResultados();
             })
             .catch(error => {
-                console.error('Error enviando a Google Sheets:', error);
-                // Mostrar resultados de todas formas
-                setTimeout(() => {
-                    mostrarResultados(datos);
-                }, 500);
+                console.error('Error:', error);
+                mostrarResultados();
             });
         }
         
-        function mostrarResultados(datos) {
+        function mostrarResultados() {
             paginaActual = 17;
             mostrarPagina();
             
-            document.getElementById('resNombre').textContent = datos.nombre;
-            document.getElementById('resCMP').textContent = datos.cmp;
-            document.getElementById('resInstitucion').textContent = datos.institucion;
-            document.getElementById('resFecha').textContent = datos.fecha;
+            document.getElementById('resNombre').textContent = datosEvaluador.nombre;
+            document.getElementById('resCMP').textContent = datosEvaluador.cmp;
+            document.getElementById('resInstitucion').textContent = datosEvaluador.institucion;
+            document.getElementById('resFecha').textContent = datosEvaluador.fecha;
             
             const tbody = document.getElementById('resultsTableBody');
             tbody.innerHTML = '';
             
             PATOLOGIAS.forEach(pat => {
-                const ev = datos.evaluaciones[pat.num];
+                const ev = datosEvaluador.evaluaciones[pat.num];
                 if (ev) {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
