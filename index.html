@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validación de Expertos - CPDD-IC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -74,6 +75,7 @@
         .page {
             flex: 1;
             display: none;
+            overflow-y: auto;
         }
         
         .page.active {
@@ -87,6 +89,17 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .instructions-highlight {
+            background: #e3f2fd;
+            border-left: 3px solid #1976d2;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #0d47a1;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
         
         .form-group {
@@ -104,7 +117,6 @@
         input[type="text"],
         input[type="email"],
         input[type="number"],
-        select,
         textarea {
             width: 100%;
             padding: 10px;
@@ -115,21 +127,35 @@
         }
         
         input:focus,
-        select:focus,
         textarea:focus {
             outline: none;
             border-color: #003366;
             box-shadow: 0 0 5px rgba(0, 51, 102, 0.3);
         }
         
-        select {
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
             cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23003366' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 20px;
-            padding-right: 40px;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            font-size: 12px;
+            cursor: pointer;
         }
         
         .consent-box {
@@ -174,13 +200,13 @@
         .image-title {
             color: #001f4d;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-size: 15px;
         }
         
         .image-placeholder {
             width: 100%;
-            height: 250px;
+            height: 200px;
             background: #e8f4f8;
             border: 2px dashed #0059b3;
             border-radius: 8px;
@@ -189,35 +215,35 @@
             justify-content: center;
             color: #0059b3;
             font-size: 13px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .rating-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .rating-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: #333;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .rating-options {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         
         .rating-btn {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             border: 2px solid #ddd;
             background: white;
             border-radius: 5px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
             transition: all 0.3s;
         }
         
@@ -288,17 +314,6 @@
             font-size: 12px;
         }
         
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: none;
-            border-left: 4px solid #2e7d32;
-            font-size: 12px;
-        }
-        
         /* RESULTADOS */
         .results-container {
             text-align: center;
@@ -336,7 +351,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            font-size: 12px;
+            font-size: 11px;
         }
         
         .results-table th {
@@ -391,6 +406,17 @@
             background: #1fa856;
             border-color: #1fa856;
         }
+        
+        #resultadosCaptura {
+            display: none;
+            position: fixed;
+            top: -9999px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+        }
     </style>
 </head>
 <body>
@@ -401,18 +427,57 @@
         </div>
         
         <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
         
         <div class="progress-info">
-            <span id="pageCounter">Página 1 de 18</span>
+            <span id="pageCounter">Página 1 de 19</span>
         </div>
         
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill" style="width: 5%"></div>
         </div>
         
-        <!-- PÁGINA 1: DATOS EXPERTO -->
+        <!-- PÁGINA 0: INSTRUCCIONES -->
         <div class="page active" id="page-0">
+            <div class="section-title">INSTRUCCIONES PARA LA EVALUACIÓN</div>
+            
+            <div style="margin-top: 20px;">
+                <h3 style="color: #001f4d; margin-bottom: 15px; font-size: 14px;">Escala de Calificación (1-5):</h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Representatividad Diagnóstica:</h4>
+                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
+                        <li><strong>1-2:</strong> No representativa o poco representativa (características poco evidentes)</li>
+                        <li><strong>3:</strong> Moderadamente representativa (características claras con variantes)</li>
+                        <li><strong>4-5:</strong> Representativa o altamente representativa (características típicas y claras)</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Calidad Técnica Fotográfica:</h4>
+                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
+                        <li><strong>1-2:</strong> Pobre/regular (baja resolución, mala iluminación)</li>
+                        <li><strong>3:</strong> Aceptable (calidad moderada)</li>
+                        <li><strong>4-5:</strong> Buena/excelente (alta resolución, iluminación óptima)</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #0059b3; font-size: 13px; margin-bottom: 8px;">Ausencia de Sesgo Visual:</h4>
+                    <ul style="margin-left: 20px; font-size: 12px; line-height: 1.8;">
+                        <li><strong>1-2:</strong> Presencia evidente o algunas pistas diagnósticas sesgadas</li>
+                        <li><strong>3:</strong> Pocas pistas sesgadas presentes</li>
+                        <li><strong>4-5:</strong> Mínimas o sin pistas diagnósticas no intencionadas</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; border-left: 4px solid #003366; font-size: 12px; color: #1a4d6d; line-height: 1.6;">
+                    <strong>📌 Nota:</strong> La evaluación consta de 15 imágenes clínicas. Dedique aproximadamente 20-30 minutos. Su criterio experto es fundamental para la validez del instrumento.
+                </div>
+            </div>
+        </div>
+        
+        <!-- PÁGINA 1: DATOS EXPERTO -->
+        <div class="page" id="page-1">
             <div class="section-title">1. DATOS DEL ESPECIALISTA</div>
             
             <div class="form-group">
@@ -436,18 +501,41 @@
             </div>
             
             <div class="form-group">
-                <label>Institución *</label>
-                <select id="institucion" required>
-                    <option value="">-- Selecciona una institución --</option>
-                    <option value="MINSA">MINSA (Ministerio de Salud)</option>
-                    <option value="EsSalud">EsSalud</option>
-                    <option value="Hospital Privado">Hospital Privado</option>
-                    <option value="Clínica Privada">Clínica Privada</option>
-                    <option value="Consultorio Privado">Consultorio Privado</option>
-                    <option value="Universidad">Universidad</option>
-                    <option value="Instituto de Investigación">Instituto de Investigación</option>
-                    <option value="Otro">Otro</option>
-                </select>
+                <label>Institución(es) donde trabaja * (Marque todas las que apliquen)</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-minsa" value="MINSA">
+                        <label for="inst-minsa">MINSA</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-essalud" value="EsSalud">
+                        <label for="inst-essalud">EsSalud</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-privado" value="Hospital Privado">
+                        <label for="inst-privado">Hospital Privado</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-clinica" value="Clínica Privada">
+                        <label for="inst-clinica">Clínica Privada</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-consultorio" value="Consultorio">
+                        <label for="inst-consultorio">Consultorio Privado</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-universidad" value="Universidad">
+                        <label for="inst-universidad">Universidad</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-investigacion" value="Instituto">
+                        <label for="inst-investigacion">Instituto Investigación</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="inst-otro" value="Otro">
+                        <label for="inst-otro">Otro</label>
+                    </div>
+                </div>
             </div>
             
             <div class="form-group">
@@ -457,12 +545,12 @@
         </div>
         
         <!-- PÁGINA 2: CONSENTIMIENTO -->
-        <div class="page" id="page-1">
+        <div class="page" id="page-2">
             <div class="section-title">2. CONSENTIMIENTO INFORMADO</div>
             
             <div class="consent-box">
                 <p><strong>Estimado especialista:</strong></p>
-                <p style="margin-top: 8px;">Se solicita su participación como experto en la validación de un instrumento de evaluación diagnóstica dermatológica. La evaluación toma aproximadamente 25-30 minutos.</p>
+                <p style="margin-top: 8px;">Se solicita su participación como experto en la validación de un instrumento de evaluación diagnóstica dermatológica.</p>
                 <p style="margin-top: 8px;"><strong>Sus derechos:</strong></p>
                 <ul style="margin-left: 20px; margin-top: 8px;">
                     <li>Su participación es completamente voluntaria</li>
@@ -482,20 +570,20 @@
         <div id="imagesPages"></div>
         
         <!-- PÁGINA 18: RESULTADOS -->
-        <div class="page" id="page-17">
+        <div class="page" id="page-18">
             <div class="results-container">
                 <h2 class="results-header">✓ Validación Completada</h2>
                 
                 <div class="summary-box">
                     <div class="summary-item"><strong>Evaluador:</strong> <span id="resNombre"></span></div>
                     <div class="summary-item"><strong>CMP:</strong> <span id="resCMP"></span></div>
-                    <div class="summary-item"><strong>Institución:</strong> <span id="resInstitucion"></span></div>
+                    <div class="summary-item"><strong>Institución(es):</strong> <span id="resInstitucion"></span></div>
                     <div class="summary-item"><strong>Fecha:</strong> <span id="resFecha"></span></div>
                 </div>
                 
                 <h3 style="color: #001f4d; margin: 15px 0 10px 0; font-size: 14px;">Resumen de Evaluaciones</h3>
                 
-                <table class="results-table">
+                <table class="results-table" id="tablaCaptura">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -509,7 +597,7 @@
                 </table>
                 
                 <div class="action-buttons">
-                    <button class="btn-action btn-whatsapp" onclick="enviarWhatsapp()">📱 Enviar por WhatsApp</button>
+                    <button class="btn-action btn-whatsapp" onclick="enviarWhatsappCaptura()">📱 Enviar por WhatsApp</button>
                 </div>
             </div>
         </div>
@@ -519,6 +607,14 @@
             <button class="btn-prev" onclick="irPagina(-1)" id="btnPrev" style="display:none;">← Anterior</button>
             <button class="btn-next" onclick="irPagina(1)" id="btnNext">Siguiente →</button>
         </div>
+    </div>
+    
+    <!-- DIV PARA CAPTURAR IMAGEN (OCULTO) -->
+    <div id="resultadosCaptura">
+        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #003366;">
+            <h2 style="color: #001f4d;">VALIDACIÓN COMPLETADA - CPDD-IC</h2>
+        </div>
+        <div id="capturaContenido"></div>
     </div>
 
     <script>
@@ -555,17 +651,21 @@
             const container = document.getElementById('imagesPages');
             
             PATOLOGIAS.forEach((pat, idx) => {
-                const pageNum = idx + 2;
+                const pageNum = idx + 3;
                 const div = document.createElement('div');
                 div.className = 'page';
                 div.id = `page-${pageNum}`;
                 div.innerHTML = `
+                    <div class="instructions-highlight">
+                        Recuerde: Calificar cada criterio de 1 (inaceptable) a 5 (excelente)
+                    </div>
+                    
                     <div class="image-container">
                         <div class="image-title">Imagen ${pat.num}: ${pat.nombre}</div>
                         <div class="image-placeholder">[Imagen ${pat.num}]</div>
                         
                         <div class="rating-group">
-                            <label class="rating-label">Representatividad diagnóstica (1-5)</label>
+                            <label class="rating-label">Representatividad diagnóstica</label>
                             <div class="rating-options">
                                 <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 1)">1</button>
                                 <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 2)">2</button>
@@ -576,7 +676,7 @@
                         </div>
                         
                         <div class="rating-group">
-                            <label class="rating-label">Calidad técnica fotográfica (1-5)</label>
+                            <label class="rating-label">Calidad técnica fotográfica</label>
                             <div class="rating-options">
                                 <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 1)">1</button>
                                 <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 2)">2</button>
@@ -587,7 +687,7 @@
                         </div>
                         
                         <div class="rating-group">
-                            <label class="rating-label">Ausencia de sesgo visual (1-5)</label>
+                            <label class="rating-label">Ausencia de sesgo visual</label>
                             <div class="rating-options">
                                 <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 1)">1</button>
                                 <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 2)">2</button>
@@ -615,13 +715,13 @@
         }
         
         function irPagina(direccion) {
-            const totalPages = 18;
+            const totalPages = 19;
             const nuevaPagina = paginaActual + direccion;
             
             if (nuevaPagina < 0 || nuevaPagina >= totalPages) return;
             
-            // Validaciones según página
-            if (paginaActual === 0) {
+            // Validaciones
+            if (paginaActual === 1) {
                 if (!document.getElementById('nombre').value.trim()) {
                     mostrarError('Completa el nombre');
                     return;
@@ -631,34 +731,35 @@
                     return;
                 }
                 if (!document.getElementById('email').value.trim()) {
-                    mostrarError('Completa el email válido');
+                    mostrarError('Completa el email');
                     return;
                 }
-                if (!document.getElementById('institucion').value) {
-                    mostrarError('Selecciona una institución');
+                let institucionesSeleccionadas = document.querySelectorAll('.checkbox-group input:checked');
+                if (institucionesSeleccionadas.length === 0) {
+                    mostrarError('Selecciona al menos una institución');
                     return;
                 }
             }
             
-            if (paginaActual === 1) {
+            if (paginaActual === 2) {
                 if (!document.getElementById('consentimiento').checked) {
                     mostrarError('Debes aceptar el consentimiento');
                     return;
                 }
             }
             
-            if (paginaActual >= 2 && paginaActual <= 16) {
-                const patNum = paginaActual - 1;
+            if (paginaActual >= 3 && paginaActual <= 17) {
+                const patNum = paginaActual - 2;
                 if (!evaluaciones[patNum] || !evaluaciones[patNum].rep || !evaluaciones[patNum].cal || !evaluaciones[patNum].ses) {
                     mostrarError('Califica los 3 criterios');
                     return;
                 }
             }
             
-            // Si es la última página de imágenes, hacer envío
-            if (paginaActual === 16 && direccion === 1) {
+            // Envío al llegar a última página
+            if (paginaActual === 17 && direccion === 1) {
                 if (!evaluaciones[15] || !evaluaciones[15].rep || !evaluaciones[15].cal || !evaluaciones[15].ses) {
-                    mostrarError('Califica todos los criterios de la última imagen');
+                    mostrarError('Califica todos los criterios');
                     return;
                 }
                 enviarValidacion();
@@ -673,13 +774,13 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${paginaActual}`).classList.add('active');
             
-            document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 18`;
+            document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 19`;
             
-            const porcentaje = ((paginaActual + 1) / 18) * 100;
+            const porcentaje = ((paginaActual + 1) / 19) * 100;
             document.getElementById('progressFill').style.width = porcentaje + '%';
             
             document.getElementById('btnPrev').style.display = paginaActual === 0 ? 'none' : 'block';
-            document.getElementById('btnNext').textContent = paginaActual === 16 ? 'Enviar Validación ✓' : 'Siguiente →';
+            document.getElementById('btnNext').textContent = paginaActual === 17 ? 'Enviar Validación ✓' : 'Siguiente →';
         }
         
         function enviarValidacion() {
@@ -688,67 +789,50 @@
                 cmp: document.getElementById('cmp').value,
                 rne: document.getElementById('rne').value,
                 email: document.getElementById('email').value,
-                institucion: document.getElementById('institucion').value,
+                institucion: Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value).join(', '),
                 experiencia: document.getElementById('experiencia').value,
                 fecha: new Date().toLocaleDateString('es-PE'),
                 hora: new Date().toLocaleTimeString('es-PE'),
                 evaluaciones: evaluaciones
             };
             
-            document.getElementById('btnNext').disabled = true;
-            document.getElementById('btnNext').textContent = 'Enviando...';
-            
-            // Envío a Google Sheets (sin esperar respuesta por CORS)
+            // Enviar a Google Sheets
             enviarAGoogleSheets(datosEvaluador);
             
-            // Mostrar resultados después de 1 segundo
+            // Mostrar resultados
             setTimeout(() => {
                 mostrarResultados(datosEvaluador);
-            }, 1000);
+            }, 500);
         }
         
         function enviarAGoogleSheets(datos) {
-            // Construir fila completa
-            const fila = [
-                datos.fecha + ' ' + datos.hora,
-                datos.nombre,
-                datos.cmp,
-                datos.rne,
-                datos.email,
-                datos.institucion,
-                datos.experiencia
-            ];
+            const payload = {
+                timestamp: datos.fecha + ' ' + datos.hora,
+                nombre: datos.nombre,
+                cmp: datos.cmp,
+                rne: datos.rne,
+                email: datos.email,
+                institucion: datos.institucion,
+                experiencia: datos.experiencia
+            };
             
-            // Añadir las 15 imágenes x 3 criterios
+            // Añadir evaluaciones
             for (let i = 1; i <= 15; i++) {
                 if (datos.evaluaciones[i]) {
-                    fila.push(datos.evaluaciones[i].rep || '');
-                    fila.push(datos.evaluaciones[i].cal || '');
-                    fila.push(datos.evaluaciones[i].ses || '');
+                    payload[`img${i}_rep`] = datos.evaluaciones[i].rep || '';
+                    payload[`img${i}_cal`] = datos.evaluaciones[i].cal || '';
+                    payload[`img${i}_ses`] = datos.evaluaciones[i].ses || '';
                 }
             }
             
-            // Envío a Google Sheets
             fetch(URL_GOOGLE_SCRIPT, {
                 method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({
-                    timestamp: datos.fecha + ' ' + datos.hora,
-                    nombre: datos.nombre,
-                    cmp: datos.cmp,
-                    rne: datos.rne,
-                    email: datos.email,
-                    institucion: datos.institucion,
-                    experiencia: datos.experiencia,
-                    evaluaciones: datos.evaluaciones
-                })
-            }).catch(err => {
-                console.log('Datos enviados a Google Sheets (sin CORS)');
-            });
+                body: JSON.stringify(payload)
+            }).then(res => console.log('Enviado a Google Sheets')).catch(err => console.log('Datos enviados:', err));
         }
         
         function mostrarResultados(datos) {
-            paginaActual = 17;
+            paginaActual = 18;
             mostrarPagina();
             
             document.getElementById('resNombre').textContent = datos.nombre;
@@ -776,33 +860,30 @@
             
             document.getElementById('btnNext').style.display = 'none';
             document.getElementById('btnPrev').style.display = 'none';
-            
-            mostrarExito('✓ Validación completada. Haz clic en "Enviar por WhatsApp" para confirmar.');
         }
         
-        function enviarWhatsapp() {
-            if (!datosEvaluador.nombre) return;
+        async function enviarWhatsappCaptura() {
+            const tabla = document.getElementById('resultsTableBody').parentElement.parentElement.parentElement;
             
-            let mensaje = `*VALIDACIÓN EXPERTOS - CPDD-IC*\n\n`;
-            mensaje += `*Datos del Evaluador:*\n`;
-            mensaje += `Nombre: ${datosEvaluador.nombre}\n`;
-            mensaje += `CMP: ${datosEvaluador.cmp}\n`;
-            mensaje += `RNE: ${datosEvaluador.rne}\n`;
-            mensaje += `Email: ${datosEvaluador.email}\n`;
-            mensaje += `Institución: ${datosEvaluador.institucion}\n`;
-            mensaje += `Experiencia: ${datosEvaluador.experiencia} años\n`;
-            mensaje += `Fecha: ${datosEvaluador.fecha}\n\n`;
-            
-            mensaje += `*Resumen de Evaluaciones:*\n`;
-            PATOLOGIAS.forEach(pat => {
-                const ev = datosEvaluador.evaluaciones[pat.num];
-                if (ev) {
-                    mensaje += `${pat.num}. ${pat.nombre}: Rep=${ev.rep} Cal=${ev.cal} Ses=${ev.ses}\n`;
-                }
-            });
-            
-            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
+            try {
+                const canvas = await html2canvas(tabla, { scale: 2, useCORS: true });
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = `validacion_${datosEvaluador.nombre.replace(/\s+/g, '_')}.png`;
+                
+                // Convertir imagen a blob para enviar a WhatsApp
+                fetch(image).then(res => res.blob()).then(blob => {
+                    const url = `https://wa.me/${WHATSAPP_NUMBER}`;
+                    window.open(url, '_blank');
+                    
+                    // Descargar imagen
+                    link.click();
+                });
+            } catch (err) {
+                console.log('Captura generada, abre WhatsApp manualmente');
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+            }
         }
         
         function mostrarError(msg) {
@@ -812,15 +893,6 @@
             setTimeout(() => {
                 errorDiv.style.display = 'none';
             }, 4000);
-        }
-        
-        function mostrarExito(msg) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = msg;
-            successDiv.style.display = 'block';
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 5000);
         }
     </script>
 </body>
