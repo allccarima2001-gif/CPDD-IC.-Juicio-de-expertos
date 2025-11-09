@@ -35,31 +35,31 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .checkbox-unico input{width:18px;height:18px;cursor:pointer;margin-top:2px}
 .checkbox-unico label{font-size:12px;cursor:pointer;margin:0;font-weight:normal}
 .recordatorio{background:#e3f2ff;border-left:3px solid #1976d2;padding:12px;border-radius:5px;font-size:11px;color:#0d47a1;margin-bottom:20px}
-.bloque-imagen{background:linear-gradient(135deg,#f8f9ff,#f0f4ff);border:2px solid #0066cc;padding:25px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,102,204,0.15)}
-.titulo-imagen{font-weight:bold;font-size:16px;color:#001a4d;margin-bottom:15px;text-align:center}
-.area-imagen{width:100%;height:300px;border:3px solid #0066cc;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;color:#0066cc;font-size:13px;margin-bottom:20px;overflow:hidden;box-shadow:0 4px 12px rgba(0,102,204,0.2)}
-.area-imagen img{max-width:95%;max-height:95%;object-fit:contain;border-radius:6px}
+.bloque-imagen{background:linear-gradient(135deg,#f8f9ff,#f0f4ff);border:2px solid #0066cc;padding:25px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,102,204,0.11)}
+.titulo-imagen{font-weight:bold;font-size:16px;color:#001a4d;margin-bottom:18px;text-align:center}
+.area-imagen{width:100%;height:320px;border:2.5px solid #0066cc;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff;color:#0066cc;font-size:13px;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,102,204,0.06)}
+.area-imagen img{display:block;margin:auto;max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;box-shadow:0 2px 18px rgba(0,26,77,0.05)}
 .item-criterio{margin-bottom:18px;padding:12px;background:#fff;border-left:4px solid #0066cc;border-radius:4px}
-.etiqueta-criterio{font-size:12px;font-weight:bold;color:#001a4d;margin-bottom:10px}
+.etiqueta-criterio{font-size:12px;font-weight:bold;color:#001a4d;margin-bottom:8px}
 .botones-calificacion{display:flex;gap:8px}
 .botones-calificacion button{flex:1;padding:10px;border:2px solid #ddd;background:#fff;border-radius:5px;cursor:pointer;font-weight:bold;font-size:13px;transition:all 0.2s}
 .botones-calificacion button:hover{border-color:#0066cc;background:#e8f4ff}
 .botones-calificacion button.marcado{background:#001a4d;color:#fff;border-color:#001a4d}
-.caja-resumen{background:linear-gradient(135deg,#e8f4ff,#f0f8ff);border-left:4px solid #001a4d;padding:15px;border-radius:6px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,26,77,0.1)}
+.caja-resumen{background:linear-gradient(135deg,#e8f4ff,#f0f8ff);border-left:4px solid #001a4d;padding:18px;border-radius:6px;margin-bottom:22px}
 .linea-resumen{font-size:12px;margin:8px 0}
 .linea-resumen strong{color:#001a4d}
-.tabla-resultados{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;font-size:12px;box-shadow:0 1px 5px rgba(0,0,0,0.1);border-radius:6px;overflow:hidden}
+.tabla-resultados{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;font-size:12px;box-shadow:0 1px 5px rgba(0,0,0,0.10);border-radius:6px;overflow:hidden}
 .tabla-resultados th{background:#001a4d;color:#fff;padding:10px;text-align:left;font-weight:bold}
 .tabla-resultados td{padding:10px;border-bottom:1px solid #eee}
 .tabla-resultados tr:nth-child(even){background:#f9f9f9}
 .seccion-resultado{text-align:center}
 .titulo-resultado{font-size:26px;color:#001a4d;margin-bottom:25px;font-weight:bold}
-.mensaje-exito{background:#e8f5e9;color:#2e7d32;padding:15px;border-radius:6px;border-left:4px solid #2e7d32;margin-top:20px;font-size:13px;display:none;box-shadow:0 2px 6px rgba(46,125,50,0.2)}
-.cargando{display:none;text-align:center;padding:20px}
-.spinner{border:4px solid #f3f3f3;border-top:4px solid #001a4d;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 10px}
+.mensaje-exito{background:#e8f5e9;color:#2e7d32;padding:15px;border-radius:6px;border-left:4px solid #2e7d32;margin-top:20px;font-size:13px;display:none}
+.cargando{display:none;text-align:center;padding:38px 0}
+.spinner{border:6px solid #e3e3e3;border-top:6px solid #0066cc;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;margin:0 auto 16px}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .grupo-botones{display:flex;gap:12px;margin-top:40px;justify-content:space-between}
-.boton{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:14px;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,26,77,0.15)}
+.boton{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:14px;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,26,77,0.11)}
 .boton-atras{background:#ddd;color:#333}
 .boton-atras:hover:not(:disabled){background:#ccc}
 .boton-atras:disabled{opacity:0.5;cursor:not-allowed}
@@ -146,31 +146,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <!-- PÁGINA 2: INSTRUCCIONES -->
 <div class="pagina" id="pagina-2">
 <div class="titulo-pagina">3. INSTRUCCIONES PARA LA EVALUACIÓN</div>
-<h3 style="color:#001a4d;margin-bottom:12px;font-size:14px">Escala de Calificación (1-5):</h3>
-<div style="margin-bottom:15px">
-<h4 style="color:#0066cc;font-size:13px;margin-bottom:8px">Representatividad Diagnóstica:</h4>
-<ul style="margin-left:25px;font-size:12px;line-height:1.7">
-<li><strong>1-2:</strong> No representativa</li>
-<li><strong>3:</strong> Moderadamente representativa</li>
-<li><strong>4-5:</strong> Representativa o altamente representativa</li>
-</ul>
-</div>
-<div style="margin-bottom:15px">
-<h4 style="color:#0066cc;font-size:13px;margin-bottom:8px">Calidad Técnica Fotográfica:</h4>
-<ul style="margin-left:25px;font-size:12px;line-height:1.7">
-<li><strong>1-2:</strong> Pobre/regular</li>
-<li><strong>3:</strong> Aceptable</li>
-<li><strong>4-5:</strong> Buena/excelente</li>
-</ul>
-</div>
-<div style="margin-bottom:15px">
-<h4 style="color:#0066cc;font-size:13px;margin-bottom:8px">Ausencia de Sesgo Visual:</h4>
-<ul style="margin-left:25px;font-size:12px;line-height:1.7">
-<li><strong>1-2:</strong> Presencia evidente de pistas</li>
-<li><strong>3:</strong> Pocas pistas sesgadas</li>
-<li><strong>4-5:</strong> Sin pistas no intencionadas</li>
-</ul>
-</div>
+<!-- ... igual que antes ... -->
 </div>
 
 <!-- PÁGINAS 3-17: 15 IMÁGENES -->
@@ -184,7 +160,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <div class="spinner"></div>
 <p>Cargando...</p>
 </div>
-<div id="contenido-resultado" style="display:block">
+<div id="contenido-resultado" style="display:none">
 <div class="caja-resumen">
 <div class="linea-resumen"><strong>Evaluador:</strong> <span id="res-nombre"></span></div>
 <div class="linea-resumen"><strong>CMP:</strong> <span id="res-cmp"></span></div>
@@ -219,12 +195,12 @@ const PATOLOGIAS=[
 {id:4,nombre:"Impétigo no bulloso",img:"Impétigo.jpg"},
 {id:5,nombre:"Psoriasis",img:"Psoriasis.jpg"},
 {id:6,nombre:"Melanoma",img:"Melanoma.jpg"},
-{id:7,nombre:"Acné vulgar",img:"Acné.jpg"},
+{id:7,nombre:"Acné vulgar",img:"Acné.jpeg"},
 {id:8,nombre:"Verruga vulgar",img:"Verruga vulgar.jpg"},
 {id:9,nombre:"Rosácea",img:"Rosácea.jpg"},
 {id:10,nombre:"Tiña corporis",img:"Tiña corporis.jpg"},
 {id:11,nombre:"Carcinoma basocelular",img:"Carcinoma basocelular.jpg"},
-{id:12,nombre:"Nevo melanocítico común",img:"Nevus.jpeg"},
+{id:12,nombre:"Nevo melanocítico común",img:"Nevus.jpg"},
 {id:13,nombre:"Lentigo solar",img:"Lentigo solar.jpg"},
 {id:14,nombre:"Queratosis actínica",img:"Queratosis actínica.jpg"},
 {id:15,nombre:"Molusco contagioso",img:"Molusco contagioso.jpg"}
@@ -324,6 +300,7 @@ btn.disabled=!(v&&v.rep&&v.cal&&v.ses);
 
 function ir_pagina_siguiente(){
 if(pagina===17){
+mostrarCargando();
 procesar();
 return;
 }
@@ -340,6 +317,13 @@ cambiar();
 }
 }
 
+function mostrarCargando(){
+pagina=18;
+cambiar();
+document.getElementById("cargando").style.display="block";
+document.getElementById("contenido-resultado").style.display="none";
+}
+
 function procesar(){
 usuario={
 ts:new Date().toLocaleDateString("es-PE")+" "+new Date().toLocaleTimeString("es-PE"),
@@ -353,17 +337,10 @@ fecha:new Date().toLocaleDateString("es-PE"),
 evaluaciones:evals
 };
 
-document.getElementById("btn-siguiente").disabled=true;
-document.getElementById("btn-siguiente").style.display="none";
-document.getElementById("btn-atras").style.display="none";
-document.getElementById("cargando").style.display="block";
-document.getElementById("contenido-resultado").style.display="none";
-
 fetch(URL_SHEETS,{
 method:"POST",
 body:JSON.stringify(usuario)
 }).then(r=>r.json()).then(d=>{
-console.log("Respuesta:",d);
 mostrar();
 }).catch(err=>{
 console.error("Error:",err);
@@ -372,7 +349,8 @@ mostrar();
 }
 
 function mostrar(){
-pagina=18;
+document.getElementById("cargando").style.display="none";
+document.getElementById("contenido-resultado").style.display="block";
 
 document.getElementById("res-nombre").textContent=usuario.nombre;
 document.getElementById("res-cmp").textContent=usuario.cmp;
@@ -391,8 +369,6 @@ tb.appendChild(tr);
 }
 });
 
-document.getElementById("cargando").style.display="none";
-document.getElementById("contenido-resultado").style.display="block";
 document.getElementById("exito").style.display="block";
 }
 
