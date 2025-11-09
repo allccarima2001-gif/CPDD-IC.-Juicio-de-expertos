@@ -58,8 +58,8 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .panel-acciones button{flex:1;min-width:140px;padding:12px;border:2px solid #001a4d;background:#fff;color:#001a4d;border-radius:6px;cursor:pointer;font-weight:bold;font-size:13px;transition:all 0.2s}
 .panel-acciones button:hover:not(:disabled){background:#001a4d;color:#fff}
 .panel-acciones button:disabled{opacity:0.4;cursor:not-allowed}
-.panel-acciones .boton-whatsapp{background:#25d366;color:#fff;border-color:#25d366}
-.panel-acciones .boton-whatsapp:hover:not(:disabled){background:#1fa856;border-color:#1fa856}
+.panel-acciones .boton-drive{background:#4285f4;color:#fff;border-color:#4285f4}
+.panel-acciones .boton-drive:hover:not(:disabled){background:#357abd;border-color:#357abd}
 .mensaje-error{background:#ffebee;color:#c62828;padding:12px;border-radius:6px;border-left:4px solid #c62828;margin-bottom:20px;display:none;font-size:12px}
 .grupo-botones{display:flex;gap:12px;margin-top:40px;justify-content:space-between}
 .boton{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:14px;transition:all 0.2s}
@@ -209,7 +209,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <tbody id="cuerpo-tabla"></tbody>
 </table>
 <div class="panel-acciones">
-<button class="boton-whatsapp" onclick="enviar_whatsapp_imagen()" id="btn-whatsapp" disabled>📱 Enviar por WhatsApp</button>
+<button class="boton-drive" onclick="enviar_drive_y_sheets()" id="btn-drive" disabled>☁ Enviar a Google Drive</button>
 </div>
 </div>
 </div>
@@ -224,7 +224,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 
 </div>
 
-<!-- DIV PARA CAPTURA - MÁS VISTOSO Y CENTRADO -->
+<!-- DIV PARA CAPTURA -->
 <div id="captura-imagen">
 <div class="captura-header">
 <h2>✓ VALIDACIÓN COMPLETADA</h2>
@@ -262,8 +262,7 @@ const PATOLOGIAS=[
 {id:15,nombre:"Molusco contagioso"}
 ];
 
-const URL_SHEETS="https://script.google.com/macros/s/AKfycbxXjOd-04D3e-82PBtdWs3jfD8zbrkko85CZ6wI5PaJeeK_KIkPH60T-htLnlaoAXbN/exec";
-const WA_NUM="51960310119";
+const URL_SHEETS="https://script.google.com/macros/s/AKfycbyxZCAgusxSXraIDSG0rfeedWQiial_FHWACECKzF8Sy-TbZ5OaJ1Pj3rqTkxD9dpMu/exec";
 
 let pagina=0;
 let evals={};
@@ -387,18 +386,9 @@ evaluaciones:evals
 };
 
 document.getElementById("btn-siguiente").disabled=true;
-document.getElementById("btn-siguiente").textContent="Enviando a Google Sheets...";
+document.getElementById("btn-siguiente").textContent="Preparando validación...";
 
-fetch(URL_SHEETS,{
-method:"POST",
-body:JSON.stringify(usuario)
-}).then(r=>r.json()).then(d=>{
-console.log("Google Sheets:",d);
 mostrar();
-}).catch(err=>{
-console.error("Error:",err);
-mostrar();
-});
 }
 
 function mostrar(){
@@ -435,34 +425,52 @@ tc.appendChild(tr2);
 
 document.getElementById("btn-siguiente").style.display="none";
 document.getElementById("btn-atras").style.display="none";
-document.getElementById("btn-whatsapp").disabled=false;
+document.getElementById("btn-drive").disabled=false;
 }
 
-async function enviar_whatsapp_imagen(){
+async function enviar_drive_y_sheets(){
 try{
-document.getElementById("btn-whatsapp").disabled=true;
-document.getElementById("btn-whatsapp").textContent="Generando imagen...";
+document.getElementById("btn-drive").disabled=true;
+document.getElementById("btn-drive").textContent="Generando imagen...";
 
 const elem=document.getElementById("captura-imagen");
 const canvas=await html2canvas(elem,{scale:3,useCORS:true,backgroundColor:"#ffffff",allowTaint:true});
-const img=canvas.toDataURL("image/jpeg",0.95);
+const imgBase64=canvas.toDataURL("image/jpeg",0.95);
 
-document.getElementById("btn-whatsapp").textContent="Enviando a WhatsApp...";
+document.getElementById("btn-drive").textContent="Enviando a Google Drive y Sheets...";
 
-const blob=await(await fetch(img)).blob();
-const formData=new FormData();
-formData.append("file",blob,"validacion.jpg");
+const dataToSend={
+ts:usuario.ts,
+nombre:usuario.nombre,
+cmp:usuario.cmp,
+rne:usuario.rne,
+email:usuario.email,
+inst:usuario.inst,
+exp:usuario.exp,
+fecha:usuario.fecha,
+evaluaciones:usuario.evaluaciones,
+imagen:imgBase64
+};
+
+const response=await fetch(URL_SHEETS,{
+method:"POST",
+body:JSON.stringify(dataToSend)
+});
+
+const result=await response.json();
+console.log("Respuesta:",result);
+
+document.getElementById("btn-drive").textContent="✓ Completado y guardado en Drive";
+document.getElementById("btn-drive").disabled=true;
 
 setTimeout(()=>{
-const mensaje=encodeURIComponent("He completado la validación de expertos CPDD-IC. Resumen adjunto.");
-window.open(`https://wa.me/${WA_NUM}?text=${mensaje}`,"_blank");
-document.getElementById("btn-whatsapp").textContent="✓ Enviado a WhatsApp";
-},1500);
+alert("Validación completada. Los datos se han guardado en Google Sheets y la imagen en Google Drive.");
+},1000);
 
 }catch(e){
 console.error("Error:",e);
-document.getElementById("btn-whatsapp").disabled=false;
-document.getElementById("btn-whatsapp").textContent="Error, intenta de nuevo";
+document.getElementById("btn-drive").textContent="Error, intenta de nuevo";
+document.getElementById("btn-drive").disabled=false;
 }
 }
 
