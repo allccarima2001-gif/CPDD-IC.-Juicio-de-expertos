@@ -1,381 +1,422 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Validación de Expertos - CPDD-IC</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  /* Estilos simplificados para brevedad */
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #003366 0%, #004d99 100%); color: #333; margin:0; padding:20px; }
-  .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); min-height: 60vh; display:flex; flex-direction: column; }
-  .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #003366; padding-bottom: 20px; }
-  .header h1 { color: #001f4d; font-size: 26px; margin-bottom: 8px; }
-  .header p { color: #0059b3; font-size: 13px; }
-  .error-message { background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; margin-bottom: 15px; display:none; border-left:4px solid #c62828; font-size: 12px; }
-  .progress-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 20px; }
-  .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; margin-bottom: 20px; overflow:hidden; }
-  .progress-fill { height: 100%; background: #003366; transition: width 0.3s; }
-  .page { display: none; flex:1; overflow-y:auto; }
-  .page.active { display: block; }
-  .section-title { color:#001f4d; font-weight:700; font-size:16px; margin-bottom:15px; border-bottom:2px solid #e0e0e0; padding-bottom:10px; }
-  .form-group { margin-bottom: 15px; }
-  label { display: block; color: #333; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-  input[type="text"], input[type="email"], input[type="number"] { width: 100%; padding:10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; font-family: inherit; }
-  input:focus { outline:none; border-color:#003366; box-shadow:0 0 5px rgba(0,51,102,0.3); }
-  .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .checkbox-item { display:flex; align-items: center; gap:8px; }
-  .checkbox-item input[type="checkbox"] { width:16px; height:16px; cursor:pointer; }
-  .checkbox-item label { margin: 0; font-weight: 500; font-size: 12px; cursor:pointer; }
-  .checkbox-consent { display:flex; align-items: flex-start; gap:10px; margin: 15px 0; }
-  .checkbox-consent input { width:18px; height:18px; cursor:pointer; margin-top:2px; }
-  .checkbox-consent label { cursor:pointer; font-weight: 500; font-size:12px; }
-  .instructions-highlight { background: #e3f2fd; border-left: 3px solid #1976d2; padding: 12px; border-radius: 4px; font-size: 11px; color: #0d47a1; margin-bottom: 15px; line-height: 1.5; }
-  .image-container { background: #f9f9f9; padding:20px; border-radius:8px; border-left:4px solid #0059b3; margin-bottom: 20px;}
-  .image-title { color:#001f4d; font-weight:700; margin-bottom:10px; font-size:15px; }
-  .image-placeholder { width: 100%; height: 200px; border: 2px dashed #0059b3; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#0059b3; font-size: 13px; margin-bottom:15px; background:#e8f4f8;}
-  .rating-group { margin-bottom: 12px; }
-  .rating-label { display:block; font-size: 11px; color:#333; font-weight: 600; margin-bottom: 6px; }
-  .rating-options { display:flex; gap:6px; }
-  .rating-btn { flex:1; padding:6px; border:2px solid #ddd; background:white; border-radius:5px; cursor:pointer; font-weight:600; font-size: 11px; transition: all 0.3s;}
-  .rating-btn:hover{ border-color:#0059b3; background:#e8f4f8;}
-  .rating-btn.selected{ background:#003366; color:white; border-color:#003366;}
-  .button-group { display:flex; gap:12px; margin-top: 30px; justify-content: space-between; }
-  button { padding: 10px 20px; font-size: 14px; border:none; border-radius:6px; cursor:pointer; font-weight:700; transition: all 0.3s;}
-  .btn-prev { background:#e0e0e0; color:#333; flex: 0 0 100px; }
-  .btn-prev:hover:not(:disabled) { background:#d0d0d0; }
-  .btn-next { background:#003366; color:white; flex:1; margin-left:auto; }
-  .btn-next:hover:not(:disabled) { background:#004d99; box-shadow: 0 4px 12px rgba(0,51,102,0.3); }
-  .btn-next:disabled, .btn-prev:disabled { opacity:0.5; cursor:not-allowed; }
-  .results-container { text-align:center; }
-  .results-header { color:#001f4d; font-size:24px; margin-bottom:20px; }
-  .summary-box { background:#f0f4f8; padding:15px; border-radius:8px; margin-bottom:20px; border-left:4px solid #003366; text-align:left; }
-  .summary-item { margin:8px 0; font-size: 12px; }
-  .summary-item strong { color:#001f4d; }
-  .results-table { width: 100%; border-collapse: collapse; margin:20px 0; background:white; border-radius:8px; overflow:hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 11px; }
-  .results-table th { background:#003366; color:white; padding:8px; font-weight:700; text-align:left; }
-  .results-table td { padding:8px; border-bottom:1px solid #e0e0e0; }
-  .results-table tr:nth-child(even) { background:#f9f9f9;}
-  .action-buttons { display:flex; gap:12px; margin-top:20px; flex-wrap:wrap; }
-  .btn-action { flex:1; min-width:150px; padding: 10px 15px; font-size: 12px; border: 2px solid #003366; background:white; color:#003366; border-radius:6px; cursor:pointer; font-weight:700; }
-  .btn-action:hover { background:#003366; color:white; }
-  .btn-whatsapp { background:#25d366; color:white; border-color:#25d366; }
-  .btn-whatsapp:hover { background:#1fa856; border-color:#1fa856; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#003366 0%,#004d99 100%);min-height:100vh;padding:20px;color:#333}
+.container{max-width:800px;margin:0 auto;background:#fff;padding:40px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.3);display:flex;flex-direction:column}
+.header{text-align:center;margin-bottom:30px;border-bottom:3px solid #003366;padding-bottom:20px}
+.header h1{color:#001f4d;font-size:26px;margin-bottom:8px}
+.header p{color:#0059b3;font-size:13px}
+.progress-info{text-align:center;font-size:12px;color:#666;margin-bottom:20px}
+.progress-bar{width:100%;height:8px;background:#e0e0e0;border-radius:4px;margin-bottom:20px}
+.progress-fill{height:100%;background:#003366;transition:width 0.3s}
+.page{display:none;flex:1;overflow-y:auto}
+.page.active{display:block}
+.section-title{color:#001f4d;font-weight:700;font-size:16px;margin-bottom:15px;border-bottom:2px solid #e0e0e0;padding-bottom:10px}
+.form-group{margin-bottom:15px}
+label{display:block;color:#333;font-weight:600;margin-bottom:6px;font-size:13px}
+input[type="text"],input[type="email"],input[type="number"]{width:100%;padding:10px;border:2px solid #ddd;border-radius:5px;font-size:14px}
+input:focus{outline:0;border-color:#003366;box-shadow:0 0 5px rgba(0,51,102,0.3)}
+.checkbox-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checkbox-item{display:flex;align-items:center;gap:8px}
+.checkbox-item input{width:16px;height:16px;cursor:pointer}
+.checkbox-item label{margin:0;font-weight:500;font-size:12px;cursor:pointer}
+.checkbox-consent{display:flex;align-items:flex-start;gap:10px;margin:15px 0}
+.checkbox-consent input{width:18px;height:18px;cursor:pointer;margin-top:2px}
+.checkbox-consent label{cursor:pointer;font-weight:500;font-size:12px;margin:0}
+.instructions-highlight{background:#e3f2fd;border-left:3px solid #1976d2;padding:12px;border-radius:4px;font-size:11px;color:#0d47a1;margin-bottom:15px;line-height:1.5}
+.image-container{background:#f9f9f9;padding:20px;border-radius:8px;border-left:4px solid #0059b3;margin-bottom:20px}
+.image-title{color:#001f4d;font-weight:700;margin-bottom:10px;font-size:15px}
+.image-placeholder{width:100%;height:200px;border:2px dashed #0059b3;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0059b3;font-size:13px;margin-bottom:15px;background:#e8f4f8}
+.rating-group{margin-bottom:12px}
+.rating-label{display:block;font-size:11px;color:#333;font-weight:600;margin-bottom:6px}
+.rating-options{display:flex;gap:6px}
+.rating-btn{flex:1;padding:6px;border:2px solid #ddd;background:#fff;border-radius:5px;cursor:pointer;font-weight:600;font-size:11px;transition:all 0.3s}
+.rating-btn:hover{border-color:#0059b3;background:#e8f4f8}
+.rating-btn.selected{background:#003366;color:#fff;border-color:#003366}
+.button-group{display:flex;gap:12px;margin-top:30px;justify-content:space-between}
+button{padding:10px 20px;font-size:14px;border:0;border-radius:6px;cursor:pointer;font-weight:700;transition:all 0.3s}
+.btn-prev{background:#e0e0e0;color:#333;flex:0 0 100px}
+.btn-prev:hover:not(:disabled){background:#d0d0d0}
+.btn-next{background:#003366;color:#fff;flex:1;margin-left:auto}
+.btn-next:hover:not(:disabled){background:#004d99;box-shadow:0 4px 12px rgba(0,51,102,0.3)}
+.btn-next:disabled,.btn-prev:disabled{opacity:0.5;cursor:not-allowed}
+.error-message{background:#ffebee;color:#c62828;padding:12px;border-radius:6px;margin-bottom:15px;display:none;border-left:4px solid #c62828;font-size:12px}
+.results-container{text-align:center}
+.results-header{color:#001f4d;font-size:24px;margin-bottom:20px}
+.summary-box{background:#f0f4f8;padding:15px;border-radius:8px;margin-bottom:20px;border-left:4px solid #003366;text-align:left}
+.summary-item{margin:8px 0;font-size:12px}
+.summary-item strong{color:#001f4d}
+.results-table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);font-size:11px}
+.results-table th{background:#003366;color:#fff;padding:8px;font-weight:700;text-align:left}
+.results-table td{padding:8px;border-bottom:1px solid #e0e0e0}
+.results-table tr:nth-child(even){background:#f9f9f9}
+.action-buttons{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.btn-action{flex:1;min-width:150px;padding:10px 15px;font-size:12px;border:2px solid #003366;background:#fff;color:#003366;border-radius:6px;cursor:pointer;font-weight:700}
+.btn-action:hover{background:#003366;color:#fff}
+.btn-whatsapp{background:#25d366;color:#fff;border-color:#25d366}
+.btn-whatsapp:hover{background:#1fa856;border-color:#1fa856}
+#capturaResultados{position:absolute;top:-9999px;background:#fff;padding:30px;border-radius:12px;max-width:800px;width:90%}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1>VALIDACIÓN DE EXPERTOS</h1>
-    <p>Cuestionario de Precisión Diagnóstica Dermatológica - CPDD-IC</p>
-  </div>
+<div class="header">
+<h1>VALIDACIÓN DE EXPERTOS</h1>
+<p>Cuestionario de Precisión Diagnóstica Dermatológica - CPDD-IC</p>
+</div>
 
-  <div class="error-message" id="errorMessage"></div>
+<div class="error-message" id="errorMessage"></div>
 
-  <div class="progress-info"><span id="pageCounter">Página 1 de 18</span></div>
+<div class="progress-info"><span id="pageCounter">Página 1 de 18</span></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:5%"></div></div>
 
-  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 5%"></div></div>
+<!-- PÁGINA 0: DATOS -->
+<div class="page active" id="page-0">
+<div class="section-title">1. DATOS DEL ESPECIALISTA</div>
+<div class="form-group"><label>Nombre completo *</label><input type="text" id="nombre"></div>
+<div class="form-group"><label>Cédula Médica (CMP) *</label><input type="text" id="cmp"></div>
+<div class="form-group"><label>Registro Nacional Especialista (RNE) *</label><input type="text" id="rne"></div>
+<div class="form-group"><label>Email *</label><input type="email" id="email"></div>
+<div class="form-group">
+<label>Institución(es) donde trabaja * (Marque todas)</label>
+<div class="checkbox-group">
+<div class="checkbox-item"><input type="checkbox" id="inst-minsa" value="MINSA"><label for="inst-minsa">MINSA</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-essalud" value="EsSalud"><label for="inst-essalud">EsSalud</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-privado" value="Hospital Privado"><label for="inst-privado">Hospital Privado</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-clinica" value="Clínica Privada"><label for="inst-clinica">Clínica Privada</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-consultorio" value="Consultorio"><label for="inst-consultorio">Consultorio Privado</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-universidad" value="Universidad"><label for="inst-universidad">Universidad</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-investigacion" value="Instituto"><label for="inst-investigacion">Instituto Investigación</label></div>
+<div class="checkbox-item"><input type="checkbox" id="inst-otro" value="Otro"><label for="inst-otro">Otro</label></div>
+</div>
+</div>
+<div class="form-group"><label>Años de experiencia *</label><input type="number" id="experiencia" min="1" max="80"></div>
+</div>
 
-  <!-- Página 0: Datos del Especialista -->
-  <div class="page active" id="page-0">
-    <div class="section-title">1. DATOS DEL ESPECIALISTA</div>
-    <div class="form-group"><label>Nombre completo *</label><input type="text" id="nombre" placeholder="Dr./Dra. Apellido Apellido"></div>
-    <div class="form-group"><label>Cédula Médica (CMP) *</label><input type="text" id="cmp" placeholder="Ej: 012345"></div>
-    <div class="form-group"><label>Registro Nacional Especialista (RNE) *</label><input type="text" id="rne" placeholder="Ej: 123456"></div>
-    <div class="form-group"><label>Email *</label><input type="email" id="email" placeholder="correo@ejemplo.com"></div>
-    <div class="form-group">
-      <label>Institución(es) donde trabaja * (Marque todas las que apliquen)</label>
-      <div class="checkbox-group">
-        <div class="checkbox-item"><input type="checkbox" id="inst-minsa" value="MINSA"><label for="inst-minsa">MINSA</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-essalud" value="EsSalud"><label for="inst-essalud">EsSalud</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-privado" value="Hospital Privado"><label for="inst-privado">Hospital Privado</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-clinica" value="Clínica Privada"><label for="inst-clinica">Clínica Privada</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-consultorio" value="Consultorio"><label for="inst-consultorio">Consultorio Privado</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-universidad" value="Universidad"><label for="inst-universidad">Universidad</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-investigacion" value="Instituto"><label for="inst-investigacion">Instituto Investigación</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="inst-otro" value="Otro"><label for="inst-otro">Otro</label></div>
-      </div>
-    </div>
-    <div class="form-group"><label>Años de experiencia en dermatología *</label><input type="number" id="experiencia" placeholder="Ej: 12" min="1" max="80"></div>
-  </div>
+<!-- PÁGINA 1: CONSENTIMIENTO -->
+<div class="page" id="page-1">
+<div class="section-title">2. CONSENTIMIENTO INFORMADO</div>
+<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #003366;font-size:12px;line-height:1.6;margin-bottom:15px">
+<p><strong>Estimado especialista:</strong></p>
+<p style="margin-top:8px">Se solicita su participación como experto en la validación de un instrumento de evaluación diagnóstica dermatológica.</p>
+<p style="margin-top:8px"><strong>Sus derechos:</strong></p>
+<ul style="margin-left:20px;margin-top:8px">
+<li>Su participación es completamente voluntaria</li>
+<li>Puede retirarse en cualquier momento</li>
+<li>Sus datos serán tratados de forma confidencial</li>
+<li>Los datos se utilizarán únicamente con fines académicos</li>
+</ul>
+</div>
+<div class="checkbox-consent">
+<input type="checkbox" id="consentimiento">
+<label for="consentimiento">Acepto participar voluntariamente y autorizo el uso de mis datos</label>
+</div>
+</div>
 
-  <!-- Página 1: Consentimiento -->
-  <div class="page" id="page-1">
-    <div class="section-title">2. CONSENTIMIENTO INFORMADO</div>
-    <div class="consent-box">
-      <p><strong>Estimado especialista:</strong></p>
-      <p style="margin-top:8px;">Se solicita su participación como experto en la validación de un instrumento de evaluación diagnóstica dermatológica.</p>
-      <p style="margin-top:8px;"><strong>Sus derechos:</strong></p>
-      <ul style="margin-left:20px; margin-top:8px;">
-        <li>Su participación es completamente voluntaria</li>
-        <li>Puede retirarse en cualquier momento</li>
-        <li>Sus datos serán tratados de forma confidencial</li>
-        <li>Los datos se utilizarán únicamente con fines académicos</li>
-      </ul>
-    </div>
-    <div class="checkbox-consent">
-      <input type="checkbox" id="consentimiento" />
-      <label for="consentimiento">Acepto participar voluntariamente y autorizo el uso de mis datos</label>
-    </div>
-  </div>
+<!-- PÁGINA 2: INSTRUCCIONES -->
+<div class="page" id="page-2">
+<div class="section-title">3. INSTRUCCIONES PARA LA EVALUACIÓN</div>
+<h3 style="color:#001f4d;margin-bottom:15px;font-size:14px">Escala de Calificación (1-5):</h3>
+<div style="margin-bottom:20px">
+<h4 style="color:#0059b3;font-size:13px;margin-bottom:8px">Representatividad Diagnóstica:</h4>
+<ul style="margin-left:20px;font-size:12px;line-height:1.8">
+<li><strong>1-2:</strong> No representativa</li>
+<li><strong>3:</strong> Moderadamente representativa</li>
+<li><strong>4-5:</strong> Representativa o altamente representativa</li>
+</ul>
+</div>
+<div style="margin-bottom:20px">
+<h4 style="color:#0059b3;font-size:13px;margin-bottom:8px">Calidad Técnica Fotográfica:</h4>
+<ul style="margin-left:20px;font-size:12px;line-height:1.8">
+<li><strong>1-2:</strong> Pobre/regular</li>
+<li><strong>3:</strong> Aceptable</li>
+<li><strong>4-5:</strong> Buena/excelente</li>
+</ul>
+</div>
+<div style="margin-bottom:20px">
+<h4 style="color:#0059b3;font-size:13px;margin-bottom:8px">Ausencia de Sesgo Visual:</h4>
+<ul style="margin-left:20px;font-size:12px;line-height:1.8">
+<li><strong>1-2:</strong> Presencia evidente de pistas sesgadas</li>
+<li><strong>3:</strong> Pocas pistas sesgadas</li>
+<li><strong>4-5:</strong> Sin pistas no intencionadas</li>
+</ul>
+</div>
+</div>
 
-  <!-- Página 2: Instrucciones -->
-  <div class="page" id="page-2">
-    <div class="section-title">3. INSTRUCCIONES PARA LA EVALUACIÓN</div>
-    <div class="instructions-highlight">
-      Escala de Calificación (1-5):<br />
-      Representatividad Diagnóstica - Calidad Técnica Fotográfica - Ausencia de Sesgo Visual<br />
-      Califique cuidadosamente cada imagen según estos criterios.
-    </div>
-  </div>
+<!-- PÁGINAS 3-17: IMÁGENES -->
+<div id="imagesPages"></div>
 
-  <!-- Páginas 3-17: Imágenes -->
-  <div id="imagesPages"></div>
+<!-- PÁGINA 18: RESULTADOS -->
+<div class="page" id="page-17">
+<div class="results-container">
+<h2 class="results-header">✓ Validación Completada</h2>
+<div class="summary-box">
+<div class="summary-item"><strong>Evaluador:</strong> <span id="resNombre"></span></div>
+<div class="summary-item"><strong>CMP:</strong> <span id="resCMP"></span></div>
+<div class="summary-item"><strong>Institución(es):</strong> <span id="resInstitucion"></span></div>
+<div class="summary-item"><strong>Fecha:</strong> <span id="resFecha"></span></div>
+</div>
+<h3 style="color:#001f4d;margin:15px 0 10px 0;font-size:14px">Resumen de Evaluaciones</h3>
+<table class="results-table">
+<thead><tr><th>#</th><th>Patología</th><th>Rep</th><th>Cal</th><th>Ses</th></tr></thead>
+<tbody id="resultsTableBody"></tbody>
+</table>
+<div class="action-buttons">
+<button class="btn-action btn-whatsapp" onclick="enviarWhatsappConCaptura()">📱 Enviar por WhatsApp</button>
+</div>
+</div>
+</div>
 
-  <!-- Página 18: Resultados -->
-  <div class="page" id="page-17">
-    <div class="results-container">
-      <h2 class="results-header">✓ Validación Completada</h2>
-      <div class="summary-box">
-        <div class="summary-item"><strong>Evaluador:</strong> <span id="resNombre"></span></div>
-        <div class="summary-item"><strong>CMP:</strong> <span id="resCMP"></span></div>
-        <div class="summary-item"><strong>Institución(es):</strong> <span id="resInstitucion"></span></div>
-        <div class="summary-item"><strong>Fecha:</strong> <span id="resFecha"></span></div>
-      </div>
-      <h3 style="color: #001f4d; margin: 15px 0 10px 0; font-size: 14px;">Resumen de Evaluaciones</h3>
-      <table class="results-table">
-        <thead>
-          <tr><th>#</th><th>Patología</th><th>Rep</th><th>Cal</th><th>Ses</th></tr>
-        </thead>
-        <tbody id="resultsTableBody"></tbody>
-      </table>
-      <div class="action-buttons">
-        <button class="btn-action btn-whatsapp" onclick="enviarWhatsapp()">📱 Enviar por WhatsApp</button>
-      </div>
-    </div>
-  </div>
+<!-- NAVEGACIÓN -->
+<div class="button-group">
+<button class="btn-prev" onclick="irPagina(-1)" id="btnPrev" style="display:none">← Anterior</button>
+<button class="btn-next" onclick="irPagina(1)" id="btnNext">Siguiente →</button>
+</div>
+</div>
 
-  <!-- Navegación -->
-  <div class="button-group">
-    <button class="btn-prev" onclick="irPagina(-1)" id="btnPrev" style="display:none;">← Anterior</button>
-    <button class="btn-next" onclick="irPagina(1)" id="btnNext">Siguiente →</button>
-  </div>
+<!-- DIV PARA CAPTURAR -->
+<div id="capturaResultados">
+<div style="text-align:center;margin-bottom:20px;padding-bottom:20px;border-bottom:2px solid #003366">
+<h2 style="color:#001f4d;font-size:20px">VALIDACIÓN COMPLETADA - CPDD-IC</h2>
+</div>
+<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #003366;margin-bottom:15px">
+<div style="margin:8px 0;font-size:12px"><strong>Evaluador:</strong> <span id="capNombre"></span></div>
+<div style="margin:8px 0;font-size:12px"><strong>CMP:</strong> <span id="capCMP"></span></div>
+<div style="margin:8px 0;font-size:12px"><strong>Institución:</strong> <span id="capInstitucion"></span></div>
+<div style="margin:8px 0;font-size:12px"><strong>Fecha:</strong> <span id="capFecha"></span></div>
+</div>
+<table style="width:100%;border-collapse:collapse;margin:15px 0;background:#fff;border-radius:8px;overflow:hidden;font-size:11px">
+<thead><tr style="background:#003366;color:#fff"><th style="padding:8px;text-align:left;font-weight:700">#</th><th style="padding:8px;text-align:left;font-weight:700">Patología</th><th style="padding:8px;text-align:left;font-weight:700">Rep</th><th style="padding:8px;text-align:left;font-weight:700">Cal</th><th style="padding:8px;text-align:left;font-weight:700">Ses</th></tr></thead>
+<tbody id="capTableBody"></tbody>
+</table>
 </div>
 
 <script>
-  const WHATSAPP_NUMBER = "51960310119";
-  const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxZbkkVl_ISmtDDTUC-wtRGc3liS-h4u-cAwXAyKegb4q7iYYtiy98kLqJe3wpaMuVf/exec";
+const WHATSAPP = "51960310119";
+const GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxZbkkVl_ISmtDDTUC-wtRGc3liS-h4u-cAwXAyKegb4q7iYYtiy98kLqJe3wpaMuVf/exec";
 
-  const PATOLOGIAS = [
-    { num: 1, nombre: "Acné vulgar" },
-    { num: 2, nombre: "Dermatitis atópica" },
-    { num: 3, nombre: "Queratosis seborreica" },
-    { num: 4, nombre: "Impétigo no bulloso" },
-    { num: 5, nombre: "Psoriasis" },
-    { num: 6, nombre: "Melanoma" },
-    { num: 7, nombre: "Verruga vulgar" },
-    { num: 8, nombre: "Rosácea" },
-    { num: 9, nombre: "Tiña corporis" },
-    { num: 10, nombre: "Carcinoma basocelular" },
-    { num: 11, nombre: "Nevo melanocítico común" },
-    { num: 12, nombre: "Lentigo solar" },
-    { num: 13, nombre: "Queratosis actínica" },
-    { num: 14, nombre: "Dermatitis de contacto alérgica" },
-    { num: 15, nombre: "Molusco contagioso" }
-  ];
+const PATOLOGIAS = [
+{num:1,nombre:"Acné vulgar"},{num:2,nombre:"Dermatitis atópica"},{num:3,nombre:"Queratosis seborreica"},{num:4,nombre:"Impétigo no bulloso"},
+{num:5,nombre:"Psoriasis"},{num:6,nombre:"Melanoma"},{num:7,nombre:"Verruga vulgar"},{num:8,nombre:"Rosácea"},
+{num:9,nombre:"Tiña corporis"},{num:10,nombre:"Carcinoma basocelular"},{num:11,nombre:"Nevo melanocítico común"},
+{num:12,nombre:"Lentigo solar"},{num:13,nombre:"Queratosis actínica"},{num:14,nombre:"Dermatitis de contacto alérgica"},
+{num:15,nombre:"Molusco contagioso"}
+];
 
-  let paginaActual = 0;
-  let evaluaciones = {};
-  let datosEvaluador = {};
+let paginaActual = 0;
+let evaluaciones = {};
+let datosEvaluador = {};
 
-  window.addEventListener('load', () => {
-    generarPaginasImagenes();
-    mostrarPagina();
-  });
+window.addEventListener('load', () => {
+generarImagenes();
+});
 
-  function generarPaginasImagenes() {
-    const container = document.getElementById('imagesPages');
-    PATOLOGIAS.forEach((pat, idx) => {
-      const pageNum = idx + 3;
-      const div = document.createElement('div');
-      div.className = 'page';
-      div.id = `page-${pageNum}`;
-      div.innerHTML = `
-        <div class="instructions-highlight">
-          Recuerde: Califique cada criterio de 1 (inaceptable) a 5 (excelente)
-        </div>
-        <div class="image-container">
-          <div class="image-title">Imagen ${pat.num}: ${pat.nombre}</div>
-          <div class="image-placeholder">[Imagen ${pat.num}]</div>
-          <div class="rating-group">
-            <label class="rating-label">Representatividad diagnóstica</label>
-            <div class="rating-options">
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 1)">1</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 2)">2</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 3)">3</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 4)">4</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'rep', 5)">5</button>
-            </div>
-          </div>
-          <div class="rating-group">
-            <label class="rating-label">Calidad técnica fotográfica</label>
-            <div class="rating-options">
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 1)">1</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 2)">2</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 3)">3</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 4)">4</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'cal', 5)">5</button>
-            </div>
-          </div>
-          <div class="rating-group">
-            <label class="rating-label">Ausencia de sesgo visual</label>
-            <div class="rating-options">
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 1)">1</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 2)">2</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 3)">3</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 4)">4</button>
-              <button type="button" class="rating-btn" onclick="setRating(${pat.num}, 'ses', 5)">5</button>
-            </div>
-          </div>
-        </div>`;
-      container.appendChild(div);
-    });
-  }
+function generarImagenes() {
+const container = document.getElementById('imagesPages');
+PATOLOGIAS.forEach((pat,idx) => {
+const pageNum = idx + 3;
+const div = document.createElement('div');
+div.className = 'page';
+div.id = `page-${pageNum}`;
+div.innerHTML = `
+<div class="instructions-highlight">Califique cada criterio de 1 (inaceptable) a 5 (excelente)</div>
+<div class="image-container">
+<div class="image-title">Imagen ${pat.num}: ${pat.nombre}</div>
+<div class="image-placeholder">[Imagen ${pat.num}]</div>
+<div class="rating-group">
+<label class="rating-label">Representatividad diagnóstica</label>
+<div class="rating-options">
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'rep',1)">1</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'rep',2)">2</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'rep',3)">3</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'rep',4)">4</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'rep',5)">5</button>
+</div>
+</div>
+<div class="rating-group">
+<label class="rating-label">Calidad técnica fotográfica</label>
+<div class="rating-options">
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'cal',1)">1</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'cal',2)">2</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'cal',3)">3</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'cal',4)">4</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'cal',5)">5</button>
+</div>
+</div>
+<div class="rating-group">
+<label class="rating-label">Ausencia de sesgo visual</label>
+<div class="rating-options">
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'ses',1)">1</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'ses',2)">2</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'ses',3)">3</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'ses',4)">4</button>
+<button type="button" class="rating-btn" onclick="setRating(${pat.num},'ses',5)">5</button>
+</div>
+</div>
+</div>`;
+container.appendChild(div);
+});
+}
 
-  function setRating(imagen, criterio, valor) {
-    if (!evaluaciones[imagen]) evaluaciones[imagen] = {};
-    evaluaciones[imagen][criterio] = valor;
-    event.target.parentNode.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-    event.target.classList.add('selected');
-  }
+function setRating(imagen, criterio, valor) {
+if (!evaluaciones[imagen]) evaluaciones[imagen] = {};
+evaluaciones[imagen][criterio] = valor;
+event.target.parentNode.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+event.target.classList.add('selected');
+}
 
-  function irPagina(direccion) {
-    const nuevaPagina = paginaActual + direccion;
+function irPagina(dir) {
+const nuevaPagina = paginaActual + dir;
 
-    if (nuevaPagina < 0 || nuevaPagina > 17) return;
+// Validar página actual ANTES de moverse
+if (paginaActual === 0) {
+if (!document.getElementById('nombre').value.trim() || !document.getElementById('cmp').value.trim() || 
+!document.getElementById('email').value.trim() || document.querySelectorAll('.checkbox-group input:checked').length === 0) {
+mostrarError('Completa todos los campos requeridos');
+return;
+}
+}
 
-    if (!validarPagina(paginaActual)) return;
+if (paginaActual === 1) {
+if (!document.getElementById('consentimiento').checked) {
+mostrarError('Debes aceptar el consentimiento');
+return;
+}
+}
 
-    if (paginaActual === 16 && direccion === 1) {
-      // Última imagen, enviar datos
-      enviarValidacion();
-      return;
-    }
+// Si está en página de imagen (3-16) y va a siguiente
+if (paginaActual >= 3 && paginaActual <= 16 && dir === 1) {
+const patNum = paginaActual - 2;
+if (!evaluaciones[patNum] || !evaluaciones[patNum].rep || !evaluaciones[patNum].cal || !evaluaciones[patNum].ses) {
+mostrarError('Califica los 3 criterios');
+return;
+}
+}
 
-    paginaActual = nuevaPagina;
-    mostrarPagina();
-  }
+// Si es última imagen (página 16) y presiona siguiente
+if (paginaActual === 16 && dir === 1) {
+const patNum = 15;
+if (!evaluaciones[patNum] || !evaluaciones[patNum].rep || !evaluaciones[patNum].cal || !evaluaciones[patNum].ses) {
+mostrarError('Califica los 3 criterios de esta última imagen');
+return;
+}
+// ENVIAR DATOS
+procesarValidacion();
+return;
+}
 
-  function validarPagina(pagina) {
-    if (pagina === 0) {
-      // Validar datos
-      const nombre = document.getElementById('nombre').value.trim();
-      const cmp = document.getElementById('cmp').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const instituciones = document.querySelectorAll('.checkbox-group input:checked');
+// Límites
+if (nuevaPagina < 0 || nuevaPagina >= 18) return;
 
-      if (!nombre) { mostrarError('Completa el nombre'); return false; }
-      if (!cmp) { mostrarError('Completa el CMP'); return false; }
-      if (!email) { mostrarError('Completa el email'); return false; }
-      if (instituciones.length === 0) { mostrarError('Selecciona al menos una institución'); return false; }
-      return true;
-    } else if (pagina === 1) {
-      if (!document.getElementById('consentimiento').checked) {
-        mostrarError('Debes aceptar el consentimiento');
-        return false;
-      }
-      return true;
-    } else if (pagina >= 3 && pagina <= 16) {
-      const patNum = pagina - 2;
-      if (!evaluaciones[patNum] || !evaluaciones[patNum].rep || !evaluaciones[patNum].cal || !evaluaciones[patNum].ses) {
-        mostrarError('Califica los 3 criterios antes de continuar');
-        return false;
-      }
-      return true;
-    }
-    return true;
-  }
+paginaActual = nuevaPagina;
+actualizarPagina();
+}
 
-  function mostrarPagina() {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${paginaActual}`).classList.add('active');
+function actualizarPagina() {
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.getElementById(`page-${paginaActual}`).classList.add('active');
+document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 18`;
+document.getElementById('progressFill').style.width = `${((paginaActual + 1) / 18) * 100}%`;
+document.getElementById('btnPrev').style.display = paginaActual === 0 ? 'none' : 'block';
+document.getElementById('btnNext').textContent = paginaActual === 16 ? 'Enviar Validación ✓' : 'Siguiente →';
+}
 
-    document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 18`;
-    document.getElementById('progressFill').style.width = `${((paginaActual + 1) / 18) * 100}%`;
+function procesarValidacion() {
+datosEvaluador = {
+timestamp: new Date().toLocaleDateString('es-PE') + ' ' + new Date().toLocaleTimeString('es-PE'),
+nombre: document.getElementById('nombre').value.trim(),
+cmp: document.getElementById('cmp').value.trim(),
+rne: document.getElementById('rne').value.trim(),
+email: document.getElementById('email').value.trim(),
+institucion: Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value).join(', '),
+experiencia: document.getElementById('experiencia').value.trim(),
+fecha: new Date().toLocaleDateString('es-PE'),
+evaluaciones: evaluaciones
+};
 
-    document.getElementById('btnPrev').style.display = paginaActual === 0 ? 'none' : 'block';
-    document.getElementById('btnNext').textContent = paginaActual === 16 ? 'Enviar Validación ✓' : 'Siguiente →';
-  }
+// Enviar a Google Sheets
+fetch(GOOGLE_SCRIPT, {
+method: 'POST',
+body: JSON.stringify(datosEvaluador)
+}).then(r => r.json()).then(d => {
+console.log('Google Sheets:', d);
+mostrarResultados();
+}).catch(e => {
+console.error('Error:', e);
+mostrarResultados();
+});
+}
 
-  function enviarValidacion() {
-    datosEvaluador = {
-      timestamp: new Date().toLocaleDateString('es-PE') + ' ' + new Date().toLocaleTimeString('es-PE'),
-      nombre: document.getElementById('nombre').value.trim(),
-      cmp: document.getElementById('cmp').value.trim(),
-      rne: document.getElementById('rne').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      institucion: Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value).join(', '),
-      experiencia: document.getElementById('experiencia').value.trim(),
-      fecha: new Date().toLocaleDateString('es-PE'),
-      evaluaciones: evaluaciones
-    };
-    document.getElementById('btnNext').disabled = true;
-    document.getElementById('btnNext').textContent = 'Enviando...';
+function mostrarResultados() {
+paginaActual = 17;
+actualizarPagina();
 
-    fetch(URL_GOOGLE_SCRIPT, {
-      method: 'POST',
-      body: JSON.stringify(datosEvaluador)
-    }).then(response => response.json()).then(data => {
-      mostrarResultados();
-    }).catch(error => {
-      console.error('Error:', error);
-      mostrarResultados();
-    });
-  }
+document.getElementById('resNombre').textContent = datosEvaluador.nombre;
+document.getElementById('resCMP').textContent = datosEvaluador.cmp;
+document.getElementById('resInstitucion').textContent = datosEvaluador.institucion;
+document.getElementById('resFecha').textContent = datosEvaluador.fecha;
 
-  function mostrarResultados() {
-    paginaActual = 17;
-    mostrarPagina();
+// También llenar datos de captura
+document.getElementById('capNombre').textContent = datosEvaluador.nombre;
+document.getElementById('capCMP').textContent = datosEvaluador.cmp;
+document.getElementById('capInstitucion').textContent = datosEvaluador.institucion;
+document.getElementById('capFecha').textContent = datosEvaluador.fecha;
 
-    document.getElementById('resNombre').textContent = datosEvaluador.nombre;
-    document.getElementById('resCMP').textContent = datosEvaluador.cmp;
-    document.getElementById('resInstitucion').textContent = datosEvaluador.institucion;
-    document.getElementById('resFecha').textContent = datosEvaluador.fecha;
+const tbody = document.getElementById('resultsTableBody');
+const capTbody = document.getElementById('capTableBody');
+tbody.innerHTML = '';
+capTbody.innerHTML = '';
 
-    const tbody = document.getElementById('resultsTableBody');
-    tbody.innerHTML = '';
-    PATOLOGIAS.forEach(pat => {
-      const ev = datosEvaluador.evaluaciones[pat.num];
-      if (ev) {
-        let tr = document.createElement('tr');
-        tr.innerHTML = `<td>${pat.num}</td><td>${pat.nombre}</td><td>${ev.rep}</td><td>${ev.cal}</td><td>${ev.ses}</td>`;
-        tbody.appendChild(tr);
-      }
-    });
+PATOLOGIAS.forEach(pat => {
+const ev = datosEvaluador.evaluaciones[pat.num];
+if (ev) {
+const tr = document.createElement('tr');
+tr.innerHTML = `<td>${pat.num}</td><td>${pat.nombre}</td><td>${ev.rep}</td><td>${ev.cal}</td><td>${ev.ses}</td>`;
+tbody.appendChild(tr);
 
-    document.getElementById('btnNext').style.display = 'none';
-    document.getElementById('btnPrev').style.display = 'none';
-  }
+const capTr = document.createElement('tr');
+capTr.innerHTML = `<td style="padding:8px;border-bottom:1px solid #e0e0e0">${pat.num}</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">${pat.nombre}</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">${ev.rep}</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">${ev.cal}</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">${ev.ses}</td>`;
+capTbody.appendChild(capTr);
+}
+});
 
-  function enviarWhatsapp() {
-    let mensaje = `*VALIDACIÓN EXPERTOS - CPDD-IC*\n\n`;
-    mensaje += `*Datos del Evaluador:*\n`;
-    mensaje += `Nombre: ${datosEvaluador.nombre}\n`;
-    mensaje += `CMP: ${datosEvaluador.cmp}\n`;
-    mensaje += `RNE: ${datosEvaluador.rne}\n`;
-    mensaje += `Email: ${datosEvaluador.email}\n`;
-    mensaje += `Institución(es): ${datosEvaluador.institucion}\n`;
-    mensaje += `Experiencia: ${datosEvaluador.experiencia} años\n`;
-    mensaje += `Fecha: ${datosEvaluador.fecha}\n\n`;
+document.getElementById('btnNext').style.display = 'none';
+document.getElementById('btnPrev').style.display = 'none';
+}
 
-    mensaje += `*Resumen de Evaluaciones (Rep/Cal/Ses):*\n`;
-    PATOLOGIAS.forEach(pat => {
-      const ev = datosEvaluador.evaluaciones[pat.num];
-      if(ev) mensaje += `${pat.num}. ${pat.nombre}: ${ev.rep}/${ev.cal}/${ev.ses}\n`;
-    });
+async function enviarWhatsappConCaptura() {
+try {
+const elemento = document.getElementById('capturaResultados');
+const canvas = await html2canvas(elemento, {scale:2,useCORS:true,backgroundColor:'#ffffff'});
+const imagen = canvas.toDataURL('image/jpeg',0.9);
 
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
-  }
+// Crear archivo
+const link = document.createElement('a');
+link.href = imagen;
+link.download = `validacion_${datosEvaluador.nombre.replace(/\s+/g,'_')}.jpg`;
+link.click();
+
+// Abrir WhatsApp
+window.open(`https://wa.me/${WHATSAPP}?text=He%20completado%20la%20validaci%C3%B3n%20de%20expertos.%20Adjunto%20resumen.`,'_blank');
+
+} catch(err) {
+console.error('Error captura:', err);
+alert('Error generando imagen, intenta de nuevo');
+}
+}
+
+function mostrarError(msg) {
+const div = document.getElementById('errorMessage');
+div.textContent = msg;
+div.style.display = 'block';
+setTimeout(() => div.style.display = 'none', 4000);
+}
 </script>
 </body>
 </html>
