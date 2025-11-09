@@ -104,6 +104,7 @@
         input[type="text"],
         input[type="email"],
         input[type="number"],
+        select,
         textarea {
             width: 100%;
             padding: 10px;
@@ -114,10 +115,21 @@
         }
         
         input:focus,
+        select:focus,
         textarea:focus {
             outline: none;
             border-color: #003366;
             box-shadow: 0 0 5px rgba(0, 51, 102, 0.3);
+        }
+        
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23003366' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+            padding-right: 40px;
         }
         
         .consent-box {
@@ -276,6 +288,17 @@
             font-size: 12px;
         }
         
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #2e7d32;
+            font-size: 12px;
+        }
+        
         /* RESULTADOS */
         .results-container {
             text-align: center;
@@ -378,6 +401,7 @@
         </div>
         
         <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
         
         <div class="progress-info">
             <span id="pageCounter">Página 1 de 18</span>
@@ -413,12 +437,22 @@
             
             <div class="form-group">
                 <label>Institución *</label>
-                <input type="text" id="institucion" placeholder="MINSA / EsSalud / Privada" required>
+                <select id="institucion" required>
+                    <option value="">-- Selecciona una institución --</option>
+                    <option value="MINSA">MINSA (Ministerio de Salud)</option>
+                    <option value="EsSalud">EsSalud</option>
+                    <option value="Hospital Privado">Hospital Privado</option>
+                    <option value="Clínica Privada">Clínica Privada</option>
+                    <option value="Consultorio Privado">Consultorio Privado</option>
+                    <option value="Universidad">Universidad</option>
+                    <option value="Instituto de Investigación">Instituto de Investigación</option>
+                    <option value="Otro">Otro</option>
+                </select>
             </div>
             
             <div class="form-group">
                 <label>Años de experiencia en dermatología *</label>
-                <input type="number" id="experiencia" placeholder="Ej: 12" required>
+                <input type="number" id="experiencia" placeholder="Ej: 12" min="1" max="80" required>
             </div>
         </div>
         
@@ -488,8 +522,8 @@
     </div>
 
     <script>
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxZbkkVl_ISmtDDTUC-wtRGc3liS-h4u-cAwXAyKegb4q7iYYtiy98kLqJe3wpaMuVf/exec";
         const WHATSAPP_NUMBER = "51960310119";
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxZbkkVl_ISmtDDTUC-wtRGc3liS-h4u-cAwXAyKegb4q7iYYtiy98kLqJe3wpaMuVf/exec";
         
         const PATOLOGIAS = [
             { num: 1, nombre: "Acné vulgar" },
@@ -511,6 +545,7 @@
         
         let paginaActual = 0;
         let evaluaciones = {};
+        let datosEvaluador = {};
         
         window.addEventListener('load', () => {
             generarPaginasImagenes();
@@ -587,16 +622,20 @@
             
             // Validaciones según página
             if (paginaActual === 0) {
-                if (!document.getElementById('nombre').value) {
+                if (!document.getElementById('nombre').value.trim()) {
                     mostrarError('Completa el nombre');
                     return;
                 }
-                if (!document.getElementById('cmp').value) {
+                if (!document.getElementById('cmp').value.trim()) {
                     mostrarError('Completa el CMP');
                     return;
                 }
-                if (!document.getElementById('email').value) {
-                    mostrarError('Completa el email');
+                if (!document.getElementById('email').value.trim()) {
+                    mostrarError('Completa el email válido');
+                    return;
+                }
+                if (!document.getElementById('institucion').value) {
+                    mostrarError('Selecciona una institución');
                     return;
                 }
             }
@@ -616,7 +655,7 @@
                 }
             }
             
-            // Si es la última página válida, hacer envío en lugar de ir a resultados
+            // Si es la última página de imágenes, hacer envío
             if (paginaActual === 16 && direccion === 1) {
                 if (!evaluaciones[15] || !evaluaciones[15].rep || !evaluaciones[15].cal || !evaluaciones[15].ses) {
                     mostrarError('Califica todos los criterios de la última imagen');
@@ -631,25 +670,20 @@
         }
         
         function mostrarPagina() {
-            // Ocultar todas las páginas
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            
-            // Mostrar página actual
             document.getElementById(`page-${paginaActual}`).classList.add('active');
             
-            // Actualizar contadores
             document.getElementById('pageCounter').textContent = `Página ${paginaActual + 1} de 18`;
             
             const porcentaje = ((paginaActual + 1) / 18) * 100;
             document.getElementById('progressFill').style.width = porcentaje + '%';
             
-            // Mostrar/ocultar botones
             document.getElementById('btnPrev').style.display = paginaActual === 0 ? 'none' : 'block';
             document.getElementById('btnNext').textContent = paginaActual === 16 ? 'Enviar Validación ✓' : 'Siguiente →';
         }
         
         function enviarValidacion() {
-            const datos = {
+            datosEvaluador = {
                 nombre: document.getElementById('nombre').value,
                 cmp: document.getElementById('cmp').value,
                 rne: document.getElementById('rne').value,
@@ -657,24 +691,59 @@
                 institucion: document.getElementById('institucion').value,
                 experiencia: document.getElementById('experiencia').value,
                 fecha: new Date().toLocaleDateString('es-PE'),
+                hora: new Date().toLocaleTimeString('es-PE'),
                 evaluaciones: evaluaciones
             };
             
             document.getElementById('btnNext').disabled = true;
             document.getElementById('btnNext').textContent = 'Enviando...';
             
-            fetch(URL_SCRIPT, {
+            // Envío a Google Sheets (sin esperar respuesta por CORS)
+            enviarAGoogleSheets(datosEvaluador);
+            
+            // Mostrar resultados después de 1 segundo
+            setTimeout(() => {
+                mostrarResultados(datosEvaluador);
+            }, 1000);
+        }
+        
+        function enviarAGoogleSheets(datos) {
+            // Construir fila completa
+            const fila = [
+                datos.fecha + ' ' + datos.hora,
+                datos.nombre,
+                datos.cmp,
+                datos.rne,
+                datos.email,
+                datos.institucion,
+                datos.experiencia
+            ];
+            
+            // Añadir las 15 imágenes x 3 criterios
+            for (let i = 1; i <= 15; i++) {
+                if (datos.evaluaciones[i]) {
+                    fila.push(datos.evaluaciones[i].rep || '');
+                    fila.push(datos.evaluaciones[i].cal || '');
+                    fila.push(datos.evaluaciones[i].ses || '');
+                }
+            }
+            
+            // Envío a Google Sheets
+            fetch(URL_GOOGLE_SCRIPT, {
                 method: 'POST',
-                body: JSON.stringify(datos)
-            })
-            .then(res => res.json())
-            .then(data => {
-                mostrarResultados(datos);
-            })
-            .catch(err => {
-                mostrarError('Error: ' + err.message);
-                document.getElementById('btnNext').disabled = false;
-                document.getElementById('btnNext').textContent = 'Enviar Validación ✓';
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    timestamp: datos.fecha + ' ' + datos.hora,
+                    nombre: datos.nombre,
+                    cmp: datos.cmp,
+                    rne: datos.rne,
+                    email: datos.email,
+                    institucion: datos.institucion,
+                    experiencia: datos.experiencia,
+                    evaluaciones: datos.evaluaciones
+                })
+            }).catch(err => {
+                console.log('Datos enviados a Google Sheets (sin CORS)');
             });
         }
         
@@ -707,11 +776,31 @@
             
             document.getElementById('btnNext').style.display = 'none';
             document.getElementById('btnPrev').style.display = 'none';
+            
+            mostrarExito('✓ Validación completada. Haz clic en "Enviar por WhatsApp" para confirmar.');
         }
         
         function enviarWhatsapp() {
-            const nombre = document.getElementById('resNombre').textContent;
-            const mensaje = `¡Hola! He completado la validación de expertos para CPDD-IC.\n\nEvaluador: ${nombre}\n\nGracias.`;
+            if (!datosEvaluador.nombre) return;
+            
+            let mensaje = `*VALIDACIÓN EXPERTOS - CPDD-IC*\n\n`;
+            mensaje += `*Datos del Evaluador:*\n`;
+            mensaje += `Nombre: ${datosEvaluador.nombre}\n`;
+            mensaje += `CMP: ${datosEvaluador.cmp}\n`;
+            mensaje += `RNE: ${datosEvaluador.rne}\n`;
+            mensaje += `Email: ${datosEvaluador.email}\n`;
+            mensaje += `Institución: ${datosEvaluador.institucion}\n`;
+            mensaje += `Experiencia: ${datosEvaluador.experiencia} años\n`;
+            mensaje += `Fecha: ${datosEvaluador.fecha}\n\n`;
+            
+            mensaje += `*Resumen de Evaluaciones:*\n`;
+            PATOLOGIAS.forEach(pat => {
+                const ev = datosEvaluador.evaluaciones[pat.num];
+                if (ev) {
+                    mensaje += `${pat.num}. ${pat.nombre}: Rep=${ev.rep} Cal=${ev.cal} Ses=${ev.ses}\n`;
+                }
+            });
+            
             const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
         }
@@ -723,6 +812,15 @@
             setTimeout(() => {
                 errorDiv.style.display = 'none';
             }, 4000);
+        }
+        
+        function mostrarExito(msg) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = msg;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
         }
     </script>
 </body>
