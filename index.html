@@ -18,7 +18,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 .contenedor-paginas{min-height:400px;position:relative}
 .pagina{display:none}
 .pagina.visible{display:block;animation:entrada 0.3s}
-@keyframes entrada{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes entrada{from{opacity:0}to{opacity:1}}
 .titulo-pagina{font-size:16px;font-weight:bold;color:#001a4d;border-bottom:2px solid #001a4d;padding-bottom:10px;margin-bottom:20px}
 .campo{margin:20px 0}
 .campo label{display:block;font-weight:bold;font-size:13px;margin-bottom:8px;color:#333}
@@ -113,7 +113,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <input type="email" id="email" oninput="verificar_boton()">
 </div>
 <div class="campo">
-<label>Institución(es) donde trabaja * (MARCAR TODAS) *</label>
+<label>Institución(es) donde trabaja (Marque al menos una)</label>
 <div class="grupo-checkbox">
 <div class="item-checkbox"><input type="checkbox" id="inst-1" value="MINSA" onchange="verificar_boton()"><label for="inst-1">MINSA</label></div>
 <div class="item-checkbox"><input type="checkbox" id="inst-2" value="EsSalud" onchange="verificar_boton()"><label for="inst-2">EsSalud</label></div>
@@ -200,7 +200,7 @@ body{background:linear-gradient(135deg,#001a4d,#003d99);font-family:Arial,sans-s
 <tbody id="cuerpo-tabla"></tbody>
 </table>
 <div class="panel-acciones">
-<button class="boton-whatsapp" onclick="descargar_y_enviar_whatsapp()" id="btn-whatsapp" disabled>📱 Enviar por WhatsApp</button>
+<button class="boton-whatsapp" onclick="descargar_enviar_whatsapp()" id="btn-whatsapp" disabled>📱 Enviar por WhatsApp</button>
 </div>
 </div>
 </div>
@@ -252,176 +252,174 @@ const PATOLOGIAS=[
 {id:15,nombre:"Molusco contagioso"}
 ];
 
-const URL_GOOGLE_SHEETS="https://script.google.com/macros/s/AKfycbxZbkkVl_ISmtDDTUC-wtRGc3liS-h4u-cAwXAyKegb4q7iYYtiy98kLqJe3wpaMuVf/exec";
-const WHATSAPP_NUMERO="51960310119";
+const URL_SHEETS="https://script.google.com/macros/s/AKfycbxZbkkVl_ISmtDDTUC-wtRGc3liS-h4u-cAwXAyKegb4q7iYYtiy98kLqJe3wpaMuVf/exec";
+const WA_NUM="51960310119";
 
-let pagina_actual=0;
-let evaluaciones_todas={};
-let datos_usuario_final={};
+let pagina=0;
+let evals={};
+let usuario={};
 
-function crear_paginas_imagenes(){
-const contenedor=document.getElementById("contenedor-imagenes");
-PATOLOGIAS.forEach((pat,idx)=>{
-const num_pagina=idx+3;
+function crear_imagenes(){
+const cont=document.getElementById("contenedor-imagenes");
+PATOLOGIAS.forEach((p,i)=>{
 const div=document.createElement("div");
 div.className="pagina";
-div.id="pagina-"+num_pagina;
+div.id="pagina-"+(i+3);
 div.innerHTML=`
 <div class="recordatorio">Califique cada criterio de 1 (inaceptable) a 5 (excelente)</div>
 <div class="bloque-imagen">
-<div class="titulo-imagen">Imagen ${pat.id}: ${pat.nombre}</div>
-<div class="area-imagen">[Imagen ${pat.id}]</div>
+<div class="titulo-imagen">Imagen ${p.id}: ${p.nombre}</div>
+<div class="area-imagen">[Imagen ${p.id}]</div>
 <div class="item-criterio">
 <div class="etiqueta-criterio">Representatividad diagnóstica</div>
 <div class="botones-calificacion">
-<button type="button" onclick="calificar(${pat.id},'rep',1)">1</button>
-<button type="button" onclick="calificar(${pat.id},'rep',2)">2</button>
-<button type="button" onclick="calificar(${pat.id},'rep',3)">3</button>
-<button type="button" onclick="calificar(${pat.id},'rep',4)">4</button>
-<button type="button" onclick="calificar(${pat.id},'rep',5)">5</button>
+<button type="button" onclick="calif(${p.id},'rep',1)">1</button>
+<button type="button" onclick="calif(${p.id},'rep',2)">2</button>
+<button type="button" onclick="calif(${p.id},'rep',3)">3</button>
+<button type="button" onclick="calif(${p.id},'rep',4)">4</button>
+<button type="button" onclick="calif(${p.id},'rep',5)">5</button>
 </div>
 </div>
 <div class="item-criterio">
 <div class="etiqueta-criterio">Calidad técnica fotográfica</div>
 <div class="botones-calificacion">
-<button type="button" onclick="calificar(${pat.id},'cal',1)">1</button>
-<button type="button" onclick="calificar(${pat.id},'cal',2)">2</button>
-<button type="button" onclick="calificar(${pat.id},'cal',3)">3</button>
-<button type="button" onclick="calificar(${pat.id},'cal',4)">4</button>
-<button type="button" onclick="calificar(${pat.id},'cal',5)">5</button>
+<button type="button" onclick="calif(${p.id},'cal',1)">1</button>
+<button type="button" onclick="calif(${p.id},'cal',2)">2</button>
+<button type="button" onclick="calif(${p.id},'cal',3)">3</button>
+<button type="button" onclick="calif(${p.id},'cal',4)">4</button>
+<button type="button" onclick="calif(${p.id},'cal',5)">5</button>
 </div>
 </div>
 <div class="item-criterio">
 <div class="etiqueta-criterio">Ausencia de sesgo visual</div>
 <div class="botones-calificacion">
-<button type="button" onclick="calificar(${pat.id},'ses',1)">1</button>
-<button type="button" onclick="calificar(${pat.id},'ses',2)">2</button>
-<button type="button" onclick="calificar(${pat.id},'ses',3)">3</button>
-<button type="button" onclick="calificar(${pat.id},'ses',4)">4</button>
-<button type="button" onclick="calificar(${pat.id},'ses',5)">5</button>
+<button type="button" onclick="calif(${p.id},'ses',1)">1</button>
+<button type="button" onclick="calif(${p.id},'ses',2)">2</button>
+<button type="button" onclick="calif(${p.id},'ses',3)">3</button>
+<button type="button" onclick="calif(${p.id},'ses',4)">4</button>
+<button type="button" onclick="calif(${p.id},'ses',5)">5</button>
 </div>
 </div>
 </div>
 `;
-contenedor.appendChild(div);
+cont.appendChild(div);
 });
 }
 
-function calificar(imagen_id,tipo,valor){
-if(!evaluaciones_todas[imagen_id])evaluaciones_todas[imagen_id]={};
-evaluaciones_todas[imagen_id][tipo]=valor;
-event.target.parentNode.querySelectorAll("button").forEach(btn=>btn.classList.remove("marcado"));
+function calif(id,tipo,val){
+if(!evals[id])evals[id]={};
+evals[id][tipo]=val;
+event.target.parentNode.querySelectorAll("button").forEach(b=>b.classList.remove("marcado"));
 event.target.classList.add("marcado");
 verificar_boton();
 }
 
-function cambiar_pagina(){
+function cambiar(){
 document.querySelectorAll(".pagina").forEach(p=>p.classList.remove("visible"));
-document.getElementById("pagina-"+pagina_actual).classList.add("visible");
-document.getElementById("contador-paginas").textContent="Página "+(pagina_actual+1)+" de 18";
-document.getElementById("barra-progreso").style.width=((pagina_actual+1)/18*100)+"%";
-document.getElementById("btn-atras").style.display=pagina_actual===0?"none":"block";
-let btn_sig=document.getElementById("btn-siguiente");
-if(pagina_actual===16){btn_sig.textContent="Enviar Validación ✓"}else{btn_sig.textContent="Siguiente →"}
+document.getElementById("pagina-"+pagina).classList.add("visible");
+document.getElementById("contador-paginas").textContent="Página "+(pagina+1)+" de 18";
+document.getElementById("barra-progreso").style.width=((pagina+1)/18*100)+"%";
+document.getElementById("btn-atras").style.display=pagina===0?"none":"block";
+let btn=document.getElementById("btn-siguiente");
+btn.textContent=pagina===16?"Enviar Validación ✓":"Siguiente →";
 verificar_boton();
 }
 
 function verificar_boton(){
 let btn=document.getElementById("btn-siguiente");
-if(pagina_actual===0){
-let nombre=document.getElementById("nombre").value.trim();
-let cmp=document.getElementById("cmp").value.trim();
-let email=document.getElementById("email").value.trim();
-let exp=document.getElementById("experiencia").value.trim();
-let checkboxes=document.querySelectorAll("#inst-1,#inst-2,#inst-3,#inst-4,#inst-5,#inst-6,#inst-7,#inst-8");
-let todas_marcadas=Array.from(checkboxes).every(cb=>cb.checked);
-btn.disabled=!(nombre&&cmp&&email&&exp&&todas_marcadas);
-}else if(pagina_actual===1){
+if(pagina===0){
+let n=document.getElementById("nombre").value.trim();
+let c=document.getElementById("cmp").value.trim();
+let e=document.getElementById("email").value.trim();
+let ex=document.getElementById("experiencia").value.trim();
+let inst=Array.from(document.querySelectorAll("#inst-1,#inst-2,#inst-3,#inst-4,#inst-5,#inst-6,#inst-7,#inst-8")).some(i=>i.checked);
+btn.disabled=!(n&&c&&e&&ex&&inst);
+}else if(pagina===1){
 btn.disabled=!document.getElementById("consentimiento").checked;
-}else if(pagina_actual===2){
+}else if(pagina===2){
 btn.disabled=false;
-}else if(pagina_actual>=3&&pagina_actual<=16){
-let img_id=pagina_actual-2;
-let ev=evaluaciones_todas[img_id];
-btn.disabled=!(ev&&ev.rep&&ev.cal&&ev.ses);
+}else if(pagina>=3&&pagina<=16){
+let id=pagina-2;
+let v=evals[id];
+btn.disabled=!(v&&v.rep&&v.cal&&v.ses);
 }
 }
 
 function ir_pagina_siguiente(){
-if(pagina_actual===16){
-guardar_y_enviar();
+if(pagina===16){
+procesar();
 return;
 }
-if(pagina_actual<17){
-pagina_actual++;
-cambiar_pagina();
+if(pagina<17){
+pagina++;
+cambiar();
 }
 }
 
 function ir_pagina_anterior(){
-if(pagina_actual>0){
-pagina_actual--;
-cambiar_pagina();
+if(pagina>0){
+pagina--;
+cambiar();
 }
 }
 
-function guardar_y_enviar(){
-datos_usuario_final={
-timestamp:new Date().toLocaleDateString("es-PE")+" "+new Date().toLocaleTimeString("es-PE"),
+function procesar(){
+usuario={
+ts:new Date().toLocaleDateString("es-PE")+" "+new Date().toLocaleTimeString("es-PE"),
 nombre:document.getElementById("nombre").value.trim(),
 cmp:document.getElementById("cmp").value.trim(),
 rne:document.getElementById("rne").value.trim(),
 email:document.getElementById("email").value.trim(),
-institucion:Array.from(document.querySelectorAll("#inst-1,#inst-2,#inst-3,#inst-4,#inst-5,#inst-6,#inst-7,#inst-8")).filter(cb=>cb.checked).map(cb=>cb.value).join(", "),
-experiencia:document.getElementById("experiencia").value.trim(),
+inst:Array.from(document.querySelectorAll("#inst-1,#inst-2,#inst-3,#inst-4,#inst-5,#inst-6,#inst-7,#inst-8")).filter(i=>i.checked).map(i=>i.value).join(", "),
+exp:document.getElementById("experiencia").value.trim(),
 fecha:new Date().toLocaleDateString("es-PE"),
-evaluaciones:evaluaciones_todas
+evaluaciones:evals
 };
 
 document.getElementById("btn-siguiente").disabled=true;
-document.getElementById("btn-siguiente").textContent="Enviando...";
+document.getElementById("btn-siguiente").textContent="Enviando a Google Sheets...";
 
-fetch(URL_GOOGLE_SHEETS,{
+fetch(URL_SHEETS,{
 method:"POST",
-body:JSON.stringify(datos_usuario_final)
-}).then(res=>res.json()).then(data=>{
-console.log("Enviado a Google Sheets:",data);
-mostrar_resultados();
+body:JSON.stringify(usuario)
+}).then(r=>r.json()).then(d=>{
+console.log("Google Sheets:",d);
+mostrar();
 }).catch(err=>{
 console.error("Error:",err);
-mostrar_resultados();
+mostrar();
 });
 }
 
-function mostrar_resultados(){
-pagina_actual=18;
-cambiar_pagina();
+function mostrar(){
+pagina=18;
+cambiar();
 
-document.getElementById("res-nombre").textContent=datos_usuario_final.nombre;
-document.getElementById("res-cmp").textContent=datos_usuario_final.cmp;
-document.getElementById("res-institucion").textContent=datos_usuario_final.institucion;
-document.getElementById("res-fecha").textContent=datos_usuario_final.fecha;
+document.getElementById("res-nombre").textContent=usuario.nombre;
+document.getElementById("res-cmp").textContent=usuario.cmp;
+document.getElementById("res-institucion").textContent=usuario.inst;
+document.getElementById("res-fecha").textContent=usuario.fecha;
 
-document.getElementById("cap-nombre").textContent=datos_usuario_final.nombre;
-document.getElementById("cap-cmp").textContent=datos_usuario_final.cmp;
-document.getElementById("cap-institucion").textContent=datos_usuario_final.institucion;
-document.getElementById("cap-fecha").textContent=datos_usuario_final.fecha;
+document.getElementById("cap-nombre").textContent=usuario.nombre;
+document.getElementById("cap-cmp").textContent=usuario.cmp;
+document.getElementById("cap-institucion").textContent=usuario.inst;
+document.getElementById("cap-fecha").textContent=usuario.fecha;
 
-let tbody=document.getElementById("cuerpo-tabla");
-let tbody_cap=document.getElementById("cap-tabla-cuerpo");
-tbody.innerHTML="";
-tbody_cap.innerHTML="";
+let tb=document.getElementById("cuerpo-tabla");
+let tc=document.getElementById("cap-tabla-cuerpo");
+tb.innerHTML="";
+tc.innerHTML="";
 
-PATOLOGIAS.forEach(pat=>{
-let ev=datos_usuario_final.evaluaciones[pat.id];
-if(ev){
+PATOLOGIAS.forEach(p=>{
+let v=usuario.evaluaciones[p.id];
+if(v){
 let tr=document.createElement("tr");
-tr.innerHTML=`<td>${pat.id}</td><td>${pat.nombre}</td><td>${ev.rep}</td><td>${ev.cal}</td><td>${ev.ses}</td>`;
-tbody.appendChild(tr);
+tr.innerHTML=`<td>${p.id}</td><td>${p.nombre}</td><td>${v.rep}</td><td>${v.cal}</td><td>${v.ses}</td>`;
+tb.appendChild(tr);
 
-let tr_cap=document.createElement("tr");
-tr_cap.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${pat.id}</td><td style="padding:8px;border-bottom:1px solid #eee">${pat.nombre}</td><td style="padding:8px;border-bottom:1px solid #eee">${ev.rep}</td><td style="padding:8px;border-bottom:1px solid #eee">${ev.cal}</td><td style="padding:8px;border-bottom:1px solid #eee">${ev.ses}</td>`;
-tbody_cap.appendChild(tr_cap);
+let tr2=document.createElement("tr");
+tr2.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${p.id}</td><td style="padding:8px;border-bottom:1px solid #eee">${p.nombre}</td><td style="padding:8px;border-bottom:1px solid #eee">${v.rep}</td><td style="padding:8px;border-bottom:1px solid #eee">${v.cal}</td><td style="padding:8px;border-bottom:1px solid #eee">${v.ses}</td>`;
+tc.appendChild(tr2);
 }
 });
 
@@ -430,26 +428,31 @@ document.getElementById("btn-atras").style.display="none";
 document.getElementById("btn-whatsapp").disabled=false;
 }
 
-async function descargar_y_enviar_whatsapp(){
+async function descargar_enviar_whatsapp(){
 try{
-const elemento=document.getElementById("captura-imagen");
-const canvas=await html2canvas(elemento,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
-const imagen_jpg=canvas.toDataURL("image/jpeg",0.95);
+const elem=document.getElementById("captura-imagen");
+const canvas=await html2canvas(elem,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+const img=canvas.toDataURL("image/jpeg",0.9);
 
 const link=document.createElement("a");
-link.href=imagen_jpg;
-link.download=`validacion_${datos_usuario_final.nombre.replace(/\s+/g,"_")}.jpg`;
+link.href=img;
+link.download=`validacion_${usuario.nombre.replace(/\s+/g,"_")}.jpg`;
+document.body.appendChild(link);
 link.click();
+document.body.removeChild(link);
 
-window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=He%20completado%20la%20validaci%C3%B3n%20de%20expertos%20CPDD-IC.%20Adjunto%20resumen.`,"_blank");
-}catch(err){
-console.error("Error:",err);
-alert("Error generando imagen.");
+setTimeout(()=>{
+window.open(`https://wa.me/${WA_NUM}?text=He%20completado%20la%20validaci%C3%B3n%20CPDD-IC`,"_blank");
+},1000);
+
+}catch(e){
+console.error("Error:",e);
+alert("Error generando imagen");
 }
 }
 
-crear_paginas_imagenes();
-cambiar_pagina();
+crear_imagenes();
+cambiar();
 </script>
 
 </body>
